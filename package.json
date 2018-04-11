@@ -1,0 +1,31 @@
+{
+  "name": "koa-decorator-ts",
+  "version": "0.0.9",
+  "description": "koa decorator",
+  "main": "lib/index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "author": "skmdev29 <skmdev29@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skmdev/koa-decorator-ts.git"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "glob": "^7.1.2",
+    "koa": "^2.5.0",
+    "koa-router": "^7.4.0"
+  },
+  "devDependencies": {
+    "@types/glob": "^5.0.35",
+    "@types/koa": "^2.0.45",
+    "@types/koa-router": "^7.0.27",
+    "@types/node": "^9.6.2"
+  },
+  "bugs": {
+    "url": "https://github.com/skmdev/koa-decorator-ts/issues"
+  },
+  "homepage": "https://github.com/skmdev/koa-decorator-ts#readme"
+}

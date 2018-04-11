@@ -1,6 +1,6 @@
 {
   "name": "koa-decorator-ts",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "koa decorator",
   "main": "lib/index.js",
   "types": "index.d.ts",

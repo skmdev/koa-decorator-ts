@@ -3,7 +3,7 @@
   "version": "0.0.21",
   "description": "koa decorator",
   "main": "lib/index.js",
-  "types": "index.d.ts",
+  "types": "types/index.d.ts",
   "scripts": {
     "build": "tsc",
     "prepublish": "tsc"

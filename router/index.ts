@@ -5,17 +5,6 @@ import glob from 'glob';
 
 import { isArray, normalizePath } from '../utils';
 
-import {
-    controller,
-    route,
-    get,
-    post,
-    put,
-    del,
-    required,
-    middleware,
-} from '../decorators/router';
-
 export interface RouteConfig {
     app: Koa;
     apiDirPath: string;
@@ -63,14 +52,3 @@ class Router {
 }
 
 export default Router;
-
-export {
-    controller,
-    route,
-    get,
-    post,
-    put,
-    del,
-    required,
-    middleware,
-};

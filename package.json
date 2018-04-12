@@ -5,7 +5,8 @@
   "main": "lib/index.js",
   "types": "index.d.ts",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "prepublish": "tsc"
   },
   "author": "skmdev29 <skmdev29@gmail.com>",
   "repository": {

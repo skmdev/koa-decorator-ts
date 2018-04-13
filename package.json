@@ -1,11 +1,12 @@
 {
   "name": "koa-decorator-ts",
-  "version": "0.0.9",
+  "version": "1.0.0",
   "description": "koa decorator",
-  "main": "lib/index.js",
+  "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "prepublish": "tsc"
   },
   "author": "skmdev29 <skmdev29@gmail.com>",
   "repository": {

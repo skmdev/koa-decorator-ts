@@ -47,7 +47,7 @@ class Router {
       const routerPath = `${prefixPath}${config.path}`;
 
       if (config.unless) {
-        const pathRegex = routerPath.replace(/:\w+/g, '\\w+');
+        const pathRegex = routerPath.replace(/:\w+/g, '[^/]+');
         unlessPath.push(new RegExp(pathRegex));
       }
 

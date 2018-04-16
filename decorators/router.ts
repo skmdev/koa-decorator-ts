@@ -18,6 +18,7 @@ export interface RequiredBody {
 export interface RouterConfig {
   method: string;
   path: string;
+  unless?: boolean;
 }
 
 export interface RequiredConfig {
@@ -36,38 +37,38 @@ export const route = (config: RouterConfig): Function => {
   };
 };
 
-export const get = (path: string) => {
+export const get = (options: { path: string; unless?: boolean }) => {
   return route({
     method: 'get',
-    path: path
+    ...options
   });
 };
 
-export const post = (path: string) => {
+export const post = (options: { path: string; unless?: boolean }) => {
   return route({
     method: 'post',
-    path: path
+    ...options
   });
 };
 
-export const put = (path: string) => {
+export const put = (options: { path: string; unless?: boolean }) => {
   return route({
     method: 'put',
-    path: path
+    ...options
   });
 };
 
-export const del = (path: string) => {
+export const del = (options: { path: string; unless?: boolean }) => {
   return route({
     method: 'delete',
-    path: path
+    ...options
   });
 };
 
-export const patch = (path: string) => {
+export const patch = (options: { path: string; unless?: boolean }) => {
   return route({
     method: 'patch',
-    path: path
+    ...options
   });
 };
 

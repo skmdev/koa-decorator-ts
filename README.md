@@ -54,7 +54,7 @@ class UserController {
 
 
   // Get /user/:userId
-  @get('/:userId')
+  @get({ path: '/:userId', unless: true }) // if unless === true, it is equal to koa-jwt unless
   @required({ params: 'userId' }) // Require for "userId" in the params
   @middleware(this.middlewareLog) // Add Middleware
   @middleware(this.middlewareLog2)
@@ -63,7 +63,7 @@ class UserController {
   }
 
   // Get /user?top=10&star=1000000
-  @get('/')
+  @get({ path: '/' })
   @required({ query: ['top', 'star'] }) // Require for "top", "star" in the query
   @middleware(middlewareLog)
   static async getUserInfo(ctx: Koa.Context, next: Function): Promise<void> {
@@ -71,7 +71,7 @@ class UserController {
   }
 
   // Post /user/login
-  @post('/login')
+  @post({ path: '/login' })
   @required({  // Require { userEmail, password } in the body
     body: {
       userEmail: 'string',
@@ -83,7 +83,7 @@ class UserController {
   }
 
   // Patch /user/:userId
-  @patch('/:userId')
+  @patch({ path: '/:userId' })
   @required({  // Require { userNickName, userAddress } in the body
     body: {
       userNickName: 'string',
@@ -95,14 +95,14 @@ class UserController {
   }
 
   // Put /user/:userId/follow
-  @put('/:userId/follow')
+  @put({ path: '/:userId/follow' })
   @required({ params: ['userId'] }) // Require for "userId" in the params
   static async followUser(ctx: Koa.Context, next: Function): Promise<void> {
     
   }
 
   // Delete /user/:userId/follow
-  @del('/:userId/follow')
+  @del({ path: '/:userId/follow' })
   @required({ params: ['userId'] }) // Require for "userId" in the params
   static async unfollowUser(ctx: Koa.Context, next: Function): Promise<void> {
 

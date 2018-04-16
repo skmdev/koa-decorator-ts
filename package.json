@@ -17,6 +17,7 @@
   "dependencies": {
     "glob": "^7.1.2",
     "koa": "^2.5.0",
+    "koa-jwt": "^3.3.1",
     "koa-router": "^7.4.0"
   },
   "devDependencies": {

@@ -20,7 +20,7 @@ const router = new Router({
     app,
     apiDirPath: `${__dirname}/controllers` // The controllers directory
     jwt: { // koa-jwt options
-      screct: 'skmdev29',
+      secret: 'skmdev29',
       ...
     }
 });

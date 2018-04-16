@@ -19,6 +19,10 @@ const app = new Koa();
 const router = new Router({
     app,
     apiDirPath: `${__dirname}/controllers` // The controllers directory
+    jwt: { // koa-jwt options
+      secret: 'skmdev29',
+      ...
+    }
 });
 
 // 3. Register the routers

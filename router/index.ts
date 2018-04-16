@@ -36,7 +36,7 @@ class Router {
     glob.sync(path.join(this.apiDirPath, './*.js')).forEach((item: string) => require(item));
     glob.sync(path.join(this.apiDirPath, './*.ts')).forEach((item: string) => require(item));
 
-    const unlessPath: string[] = [];
+    const unlessPath: (string | RegExp)[] = [];
 
     for (const [ config, controller ] of Router._DecoratedRouters) {
       const controllers = isArray(controller);
@@ -45,10 +45,10 @@ class Router {
         prefixPath = normalizePath(prefixPath);
       }
       const routerPath = `${prefixPath}${config.path}`;
-      console.log(config, routerPath);
 
       if (config.unless) {
-        unlessPath.push(routerPath);
+        const pathRegex = routerPath.replace(/:\w+/g, '\\w+');
+        unlessPath.push(new RegExp(pathRegex));
       }
 
       this.router[config.method](routerPath, ...controllers);

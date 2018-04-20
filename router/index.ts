@@ -5,31 +5,39 @@ import glob from 'glob';
 import KoaJwt from 'koa-jwt';
 import { isArray, normalizePath } from '../utils';
 
-export interface RouteConfig {
+export interface RouterConfig {
   app: Koa;
   apiDirPath: string;
   jwt?: KoaJwt.Options;
+  graphql?: {
+    path: string;
+    controller: any;
+    unless?: boolean;
+  };
 }
 
 export const SymbolRoutePrefix = Symbol('routePrefix');
 
 class Router {
-  private app: Koa;
+  private app: RouterConfig['app'];
+  private apiDirPath: RouterConfig['apiDirPath'];
+  private jwtOptions: RouterConfig['jwt'];
+  private graphql: RouterConfig['graphql'];
 
-  private apiDirPath: string;
   private router: any;
-  private jwtOptions: RouteConfig['jwt'];
 
   static _DecoratedRouters: Map<
     { target: any; method: string; path: string; unless?: boolean },
     Function | Function[]
   > = new Map();
 
-  constructor(opt: RouteConfig) {
+  constructor(opt: RouterConfig) {
     this.app = opt.app;
     this.apiDirPath = opt.apiDirPath;
     this.router = new KoaRouter();
+
     this.jwtOptions = opt.jwt;
+    this.graphql = opt.graphql;
   }
 
   public registerRouters() {
@@ -55,7 +63,14 @@ class Router {
     }
 
     if (this.jwtOptions) {
+      if (this.graphql && this.graphql.unless) {
+        unlessPath.push(this.graphql.path);
+      }
       this.app.use(KoaJwt(this.jwtOptions).unless({ path: unlessPath }));
+    }
+
+    if (this.graphql) {
+      this.router.all(this.graphql.path, this.graphql.controller);
     }
 
     this.app.use(this.router.routes());

@@ -1,0 +1,9 @@
+type Query {
+  getUsers(role: String = "user"): [User!]
+}
+
+type User {
+  username: String
+  userEmail: String
+  role: String
+}

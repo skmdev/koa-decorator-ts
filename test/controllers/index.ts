@@ -1,49 +1,3 @@
-# koa-decorator-ts
-Koa Decorator(Type Script Support)
-
-# Installation
-```
-npm i koa-decorator-ts --save
-```
-
-# Usage
-
-> app.js
-```javascript
-import Koa from 'koa';
-// 1. Import Router
-import Router from 'koa-decorator-ts/router';
-
-const app = new Koa();
-// 2. Create router
-const router = new Router({
-    app,
-    apiDirPath: `${__dirname}/controllers` // The controllers directory
-    jwt: { // [Optional] koa-jwt options
-      secret: 'skmdev29',
-    }
-});
-
-// [Optional] Jwt unless add .unless() after route function
-router.get('/unlessPath', () => {}).unless();
-
-// [Optional] Graphql inital
-router.all('/graphql', graphqlKoa({ schema: Schema })).unless();
-router.get('/graphql', graphiqlKoa({ endpointURL: '/graphql' })).unless();
-
-
-
-// 3. Register the routers
-router.registerRouters();
-
-...
-
-app.listen('8080');
-```
-
-> /controllers/user.ts
-
-```javascript
 import Koa from 'koa';
 import { Controller, Route, Middleware, Required, Graphql } from '../../index';
 
@@ -106,9 +60,7 @@ class UserController {
   // Delete /user/:userId/follow
   @Route.del({ path: '/:userId/follow' })
   @Required({ params: [ 'userId' ] }) // Require for "userId" in the params
-  static async unfollowUser(ctx: Koa.Context): Promise<void> {
-    ctx.body = true;
-  }
+  static async unfollowUser(ctx: Koa.Context): Promise<void> {}
 
   @Graphql // transfrom to graphql resolver
   @Middleware(UserController.middlewareLog)
@@ -136,13 +88,3 @@ class UserController {
 }
 
 export default UserController;
-
-
-```
-
-
-# Todo
-
-~~Jwt~~
-~~Graphql~~
-Test case(90%)

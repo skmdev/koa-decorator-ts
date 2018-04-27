@@ -2,8 +2,7 @@ import * as Koa from 'koa';
 import Router, { SymbolRoutePrefix } from '../router';
 import { normalizePath, isArray, Decorate } from '../utils';
 
-let requestID = 0;
-const classMethods: Json = {};
+const classMethods: any = {};
 
 declare module 'koa' {
   interface Request {
@@ -27,71 +26,79 @@ export interface RequiredConfig {
   body?: RequiredBody;
 }
 
-export const route = (config: RouterConfig): Function => {
+const route = (config: RouterConfig): Function => {
   return (target: any, name: string, value: ParameterDecorator) => {
     config.path = normalizePath(config.path);
-    if (!Array.isArray(classMethods[target])) {
+    if (!Array.isArray(classMethods[target.name])) {
       classMethods[target.name] = [];
     }
     classMethods[target.name].push({ target, config, controllers: target[name] });
   };
 };
 
-export const get = (options: { path: string; unless?: boolean }) => {
+const get = (options: { path: string; unless?: boolean }) => {
   return route({
     method: 'get',
-    ...options
+    ...options,
   });
 };
 
-export const post = (options: { path: string; unless?: boolean }) => {
+const post = (options: { path: string; unless?: boolean }) => {
   return route({
     method: 'post',
-    ...options
+    ...options,
   });
 };
 
-export const put = (options: { path: string; unless?: boolean }) => {
+const put = (options: { path: string; unless?: boolean }) => {
   return route({
     method: 'put',
-    ...options
+    ...options,
   });
 };
 
-export const del = (options: { path: string; unless?: boolean }) => {
+const del = (options: { path: string; unless?: boolean }) => {
   return route({
     method: 'delete',
-    ...options
+    ...options,
   });
 };
 
-export const patch = (options: { path: string; unless?: boolean }) => {
+const patch = (options: { path: string; unless?: boolean }) => {
   return route({
     method: 'patch',
-    ...options
+    ...options,
   });
 };
 
-export const controller = (path: string): Function => {
+export const Route = {
+  get,
+  post,
+  patch,
+  put,
+  del,
+};
+
+export const Controller = (path: string): Function => {
   return (target: any) => {
     for (const classMethod of classMethods[target.name]) {
       target[SymbolRoutePrefix] = path;
       Router._DecoratedRouters.set(
         {
           target,
-          ...classMethod.config
+          ...classMethod.config,
         },
-        classMethod.controllers
+        classMethod.controllers,
       );
     }
   };
 };
 
-export const middleware = (convert: (...args: any[]) => Promise<any>) => {
+export const Middleware = (convert: (...args: any[]) => Promise<any>) => {
   return (...args: any[]) => Decorate(args, convert);
 };
 
-export const required = (rules: RequiredConfig) => {
+export const Required = (rules: RequiredConfig) => {
   return (...args: any[]) => {
     return Decorate(args, async (ctx: Koa.Context, next: Function) => {
       const method = ctx.method.toLowerCase();
@@ -110,12 +117,12 @@ export const required = (rules: RequiredConfig) => {
       if (rules.body) {
         const req = ctx.request.body;
         if (!req) {
-          ctx.throw(412, `${method} request body are required`);
+          ctx.throw(412, `${method} Request body are required`);
         }
         for (const name of Object.keys(rules.body)) {
-          if (!req[name]) ctx.throw(412, `${method} request body: ${name} required`);
+          if (!req[name]) ctx.throw(412, `${method} Request body: ${name} required`);
           if (typeof req[name] != rules.body[name])
-            ctx.throw(412, `${method} request body: ${name} is ${rules.body[name]}`);
+            ctx.throw(412, `${method} Request body: ${name} is ${rules.body[name]}`);
         }
       }
       await next();

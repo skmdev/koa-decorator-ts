@@ -1,1 +1,2 @@
-export { controller, route, get, post, put, del, required, middleware } from './decorators/router';
+export * from './decorators/router';
+export * from './decorators/graphql';

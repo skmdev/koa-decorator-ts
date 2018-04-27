@@ -1,5 +1,6 @@
 /node_modules
 /lib
+/coverage
 
 # ignore the .js files
 *.js

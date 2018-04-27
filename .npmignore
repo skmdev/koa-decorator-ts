@@ -1,6 +1,8 @@
 tslib
 tsconfig.json
 
+/coverage
+
 # ignore the .ts files
 *.ts
 

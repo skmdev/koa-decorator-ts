@@ -6,7 +6,7 @@ import app from './app';
 
 const token = jwt.sign({ foo: 'bar' }, 'skmdev');
 
-const server = app.listen(8080);
+const server = app.listen(9999);
 
 afterEach(() => {
   server.close();
@@ -87,6 +87,19 @@ it('can Put /user/:userId/follow with token', async () => {
 
 it('cannot Put /user/:userId/follow without token', async () => {
   const response = await request(server).put('/user/1/follow');
+  expect(response.status).toBe(401);
+});
+
+it('can Delete /user/:userId/follow with token', async () => {
+  const response = await request(server)
+    .del('/user/haha/follow')
+    .set('Authorization', `Bearer ${token}`);
+  expect(response.status).toBe(200);
+  expect(response.body).toBe(true);
+});
+
+it('cannot Del /user/:userId/follow without token', async () => {
+  const response = await request(server).del('/user/1/follow');
   expect(response.status).toBe(401);
 });
 

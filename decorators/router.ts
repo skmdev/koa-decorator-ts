@@ -81,6 +81,7 @@ export const Route = {
 
 export const Controller = (path: string): Function => {
   return (target: any) => {
+    if (!Array.isArray(classMethods[target.name])) return;
     for (const classMethod of classMethods[target.name]) {
       target[SymbolRoutePrefix] = path;
       Router._DecoratedRouters.set(

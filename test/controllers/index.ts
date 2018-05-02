@@ -60,7 +60,9 @@ class UserController {
   // Delete /user/:userId/follow
   @Route.del({ path: '/:userId/follow' })
   @Required({ params: [ 'userId' ] }) // Require for "userId" in the params
-  static async unfollowUser(ctx: Koa.Context): Promise<void> {}
+  static async unfollowUser(ctx: Koa.Context): Promise<void> {
+    ctx.body = true;
+  }
 
   @Graphql // transfrom to graphql resolver
   @Middleware(UserController.middlewareLog)

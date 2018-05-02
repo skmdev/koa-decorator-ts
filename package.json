@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "prepublishOnly": "tsc",
-    "test": "cross-env NODE_ENV=test jest --forceExit --runInBand"
+    "test": "cross-env NODE_ENV=test jest  --no-cache --forceExit --runInBand"
   },
   "author": "skmdev29 <skmdev29@gmail.com>",
   "repository": {
@@ -45,25 +45,15 @@
     "typescript": "^2.8.3"
   },
   "jest": {
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js"
-    ],
+    "moduleFileExtensions": [ "ts", "tsx", "js" ],
     "transform": {
       "^.+\\.(ts|tsx)$": "<rootDir>/test/preprocessor.js"
     },
-    "testMatch": [
-      "**/__tests__/**/*.js?(x)",
-      "**/?(*.)(spec|test).(ts|js)?(x)"
-    ],
+    "testMatch": [ "**/__tests__/**/*.js?(x)", "**/?(*.)(spec|test).(ts|js)?(x)" ],
     "verbose": true,
     "coverageDirectory": "coverage",
     "collectCoverage": true,
-    "coverageReporters": [
-      "lcov",
-      "text"
-    ]
+    "coverageReporters": [ "lcov", "text" ]
   },
   "bugs": {
     "url": "https://github.com/skmdev/koa-decorator-ts/issues"

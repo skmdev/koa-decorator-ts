@@ -1,6 +1,6 @@
 {
   "name": "koa-decorator-ts",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "koa decorator",
   "main": "index.js",
   "types": "index.d.ts",
@@ -45,15 +45,25 @@
     "typescript": "^2.8.3"
   },
   "jest": {
-    "moduleFileExtensions": [ "ts", "tsx", "js" ],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
     "transform": {
       "^.+\\.(ts|tsx)$": "<rootDir>/test/preprocessor.js"
     },
-    "testMatch": [ "**/__tests__/**/*.js?(x)", "**/?(*.)(spec|test).(ts|js)?(x)" ],
+    "testMatch": [
+      "**/__tests__/**/*.js?(x)",
+      "**/?(*.)(spec|test).(ts|js)?(x)"
+    ],
     "verbose": true,
     "coverageDirectory": "coverage",
     "collectCoverage": true,
-    "coverageReporters": [ "lcov", "text" ]
+    "coverageReporters": [
+      "lcov",
+      "text"
+    ]
   },
   "bugs": {
     "url": "https://github.com/skmdev/koa-decorator-ts/issues"

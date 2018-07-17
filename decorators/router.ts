@@ -6,9 +6,7 @@ const classMethods: any = {};
 
 declare module 'koa' {
   interface Request {
-    body: {
-      [key: string]: any;
-    };
+    body: any;
   }
 }
 

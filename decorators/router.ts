@@ -6,7 +6,9 @@ const classMethods: any = {};
 
 declare module 'koa' {
   interface Request {
-    body: any;
+    body: {
+      [key: string]: any;
+    };
   }
 }
 
@@ -19,9 +21,7 @@ export interface IRouterConfig {
 export interface IRequiredConfig {
   params?: string | string[];
   query?: string | string[];
-  body?: {
-    [key: string]: string;
-  };
+  body?: any;
 }
 
 const route = (config: IRouterConfig): Function => {

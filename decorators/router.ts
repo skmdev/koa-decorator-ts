@@ -1,14 +1,8 @@
-import * as Koa from 'koa';
 import Router, { SymbolRoutePrefix } from '../router';
 import { normalizePath, isArray, Decorate } from '../utils';
+import { IContext } from './graphql';
 
 const classMethods: any = {};
-
-declare module 'koa' {
-  interface Request {
-    body: any;
-  }
-}
 
 export interface IRouterConfig {
   method: string;
@@ -101,7 +95,7 @@ export const Middleware = (convert: (...args: any[]) => Promise<any>) => {
 
 export const Required = (rules: IRequiredConfig) => {
   return (...args: any[]) => {
-    return Decorate(args, async (ctx: Koa.Context, next: Function) => {
+    return Decorate(args, async (ctx: IContext, next: Function) => {
       const method = ctx.method.toLowerCase();
       if (rules.params) {
         rules.params = isArray(rules.params);
@@ -121,15 +115,16 @@ export const Required = (rules: IRequiredConfig) => {
         const req = ctx.request.body;
         if (!req) {
           ctx.throw(412, `${method} Request body are required`);
-        }
-        for (const name of Object.keys(rules.body)) {
-          if (!req[name])
-            ctx.throw(412, `${method} Request body: ${name} required`);
-          if (typeof req[name] != rules.body[name])
-            ctx.throw(
-              412,
-              `${method} Request body: ${name} is ${rules.body[name]}`,
-            );
+        } else if (typeof req === 'object') {
+          for (const name of Object.keys(rules.body)) {
+            if (!req[name])
+              ctx.throw(412, `${method} Request body: ${name} required`);
+            if (typeof req[name] != rules.body[name])
+              ctx.throw(
+                412,
+                `${method} Request body: ${name} is ${rules.body[name]}`,
+              );
+          }
         }
       }
       await next();

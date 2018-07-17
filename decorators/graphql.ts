@@ -15,7 +15,7 @@ export const Graphql = (target: any, name: string, descriptor: any): any => {
   descriptor.value = async (
     root: any,
     args: any,
-    context: Koa.Context,
+    context: IContext,
     info: any,
   ) => {
     context.graphql = {
@@ -23,7 +23,7 @@ export const Graphql = (target: any, name: string, descriptor: any): any => {
       args,
       info,
     };
-    compose<IContext>(middleware)(<IContext>context);
+    compose<IContext>(middleware)(context);
     return context.body;
   };
 };

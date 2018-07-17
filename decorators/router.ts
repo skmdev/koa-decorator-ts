@@ -10,29 +10,31 @@ declare module 'koa' {
   }
 }
 
-export interface RequiredBody {
-  [key: string]: string;
-}
-
-export interface RouterConfig {
+export interface IRouterConfig {
   method: string;
   path: string;
   unless?: boolean;
 }
 
-export interface RequiredConfig {
+export interface IRequiredConfig {
   params?: string | string[];
   query?: string | string[];
-  body?: RequiredBody;
+  body?: {
+    [key: string]: string;
+  };
 }
 
-const route = (config: RouterConfig): Function => {
+const route = (config: IRouterConfig): Function => {
   return (target: any, name: string, value: ParameterDecorator) => {
     config.path = normalizePath(config.path);
     if (!Array.isArray(classMethods[target.name])) {
       classMethods[target.name] = [];
     }
-    classMethods[target.name].push({ target, config, controllers: target[name] });
+    classMethods[target.name].push({
+      target,
+      config,
+      controllers: target[name],
+    });
   };
 };
 
@@ -99,20 +101,22 @@ export const Middleware = (convert: (...args: any[]) => Promise<any>) => {
   return (...args: any[]) => Decorate(args, convert);
 };
 
-export const Required = (rules: RequiredConfig) => {
+export const Required = (rules: IRequiredConfig) => {
   return (...args: any[]) => {
     return Decorate(args, async (ctx: Koa.Context, next: Function) => {
       const method = ctx.method.toLowerCase();
       if (rules.params) {
         rules.params = isArray(rules.params);
         for (const name of rules.params) {
-          if (!ctx.params[name]) ctx.throw(412, `${method} Request params: ${name} required`);
+          if (!ctx.params[name])
+            ctx.throw(412, `${method} Request params: ${name} required`);
         }
       }
       if (rules.query) {
         rules.query = isArray(rules.query);
         for (const name of rules.query) {
-          if (!ctx.query[name]) ctx.throw(412, `${method} Request query: ${name} required`);
+          if (!ctx.query[name])
+            ctx.throw(412, `${method} Request query: ${name} required`);
         }
       }
       if (rules.body) {
@@ -121,9 +125,13 @@ export const Required = (rules: RequiredConfig) => {
           ctx.throw(412, `${method} Request body are required`);
         }
         for (const name of Object.keys(rules.body)) {
-          if (!req[name]) ctx.throw(412, `${method} Request body: ${name} required`);
+          if (!req[name])
+            ctx.throw(412, `${method} Request body: ${name} required`);
           if (typeof req[name] != rules.body[name])
-            ctx.throw(412, `${method} Request body: ${name} is ${rules.body[name]}`);
+            ctx.throw(
+              412,
+              `${method} Request body: ${name} is ${rules.body[name]}`,
+            );
         }
       }
       await next();

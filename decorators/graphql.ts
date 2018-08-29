@@ -16,14 +16,14 @@ export const Graphql = (target: any, name: string, descriptor: any): any => {
     root: any,
     args: any,
     context: IContext,
-    info: any,
+    info: any
   ) => {
     context.graphql = {
       root,
       args,
-      info,
+      info
     };
-    compose<IContext>(middleware)(context);
+    await compose<IContext>(middleware)(context);
     return context.body;
   };
 };

@@ -1,79 +1,60 @@
-import Router, { SymbolRoutePrefix } from '../router';
+import Router, { SymbolRoutePrefix, MethodType } from '../router';
 import { normalizePath, isArray, Decorate } from '../utils';
-import { IContext } from './graphql';
+import { Context } from 'koa';
 
-const classMethods: any = {};
+const classMethods: IClassMethodMap = {};
 
-export interface IRouterConfig {
-  method: string;
-  path: string;
-  unless?: boolean;
+function updateMethodOptions(target: any, name: string, options: any) {
+  if (!Array.isArray(classMethods[target.name])) {
+    classMethods[target.name] = [];
+  }
+  const method = classMethods[target.name].find(
+    (methodOptions) => methodOptions.name === name
+  );
+
+  for (const key in options) {
+    if (method && typeof options[key] !== 'undefined') {
+      method[key as keyof IMethodOptions] = options[key];
+    }
+  }
+
+  if (!method) {
+    classMethods[target.name].push({
+      name,
+      target,
+      controllers: target[name],
+      ...options
+    });
+  }
 }
 
-export interface IRequiredConfig {
-  params?: string | string[];
-  query?: string | string[];
-  body?: any;
-}
+export const Unless: Function = (
+  target: any,
+  name: string,
+  value: ParameterDecorator
+) => {
+  updateMethodOptions(target, name, { unless: true });
+};
 
 const route = (config: IRouterConfig): Function => {
   return (target: any, name: string, value: ParameterDecorator) => {
-    config.path = normalizePath(config.path);
-    if (!Array.isArray(classMethods[target.name])) {
-      classMethods[target.name] = [];
-    }
-    classMethods[target.name].push({
-      target,
-      config,
-      controllers: target[name],
-    });
+    config.path = normalizePath(config.path!);
+    updateMethodOptions(target, name, { config });
   };
 };
 
-const get = (options: { path: string; unless?: boolean }) => {
-  return route({
-    method: 'get',
-    ...options,
-  });
-};
-
-const post = (options: { path: string; unless?: boolean }) => {
-  return route({
-    method: 'post',
-    ...options,
-  });
-};
-
-const put = (options: { path: string; unless?: boolean }) => {
-  return route({
-    method: 'put',
-    ...options,
-  });
-};
-
-const del = (options: { path: string; unless?: boolean }) => {
-  return route({
-    method: 'delete',
-    ...options,
-  });
-};
-
-const patch = (options: { path: string; unless?: boolean }) => {
-  return route({
-    method: 'patch',
-    ...options,
-  });
-};
+const getRoute = (method: MethodType) => (path: string) =>
+  route({ method, path });
 
 export const Route = {
-  get,
-  post,
-  patch,
-  put,
-  del,
+  get: getRoute(MethodType.Get),
+  post: getRoute(MethodType.Post),
+  put: getRoute(MethodType.Put),
+  del: getRoute(MethodType.Delete),
+  patch: getRoute(MethodType.Patch)
 };
 
-export const Controller = (path: string): Function => {
+export const Controller = (path: string) => {
   return (target: any) => {
     if (!Array.isArray(classMethods[target.name])) return;
     for (const classMethod of classMethods[target.name]) {
@@ -81,9 +62,10 @@ export const Controller = (path: string): Function => {
       Router._DecoratedRouters.set(
         {
           target,
-          ...classMethod.config,
+          unless: classMethod.unless,
+          ...classMethod.config!
         },
-        classMethod.controllers,
+        classMethod.controllers
       );
     }
   };
@@ -95,35 +77,38 @@ export const Middleware = (convert: (...args: any[]) => Promise<any>) => {
 
 export const Required = (rules: IRequiredConfig) => {
   return (...args: any[]) => {
-    return Decorate(args, async (ctx: IContext, next: Function) => {
+    return Decorate(args, async (ctx: Context, next: Function) => {
       const method = ctx.method.toLowerCase();
-      if (rules.params) {
-        rules.params = isArray(rules.params);
-        for (const name of rules.params) {
-          if (!ctx.params[name])
-            ctx.throw(412, `${method} Request params: ${name} required`);
+      // Skip checking for graphql
+      if (!ctx.graphql) {
+        if (rules.params) {
+          rules.params = isArray(rules.params);
+          for (const name of rules.params) {
+            if (!ctx.params[name])
+              ctx.throw(412, `${method} Request params: ${name} required`);
+          }
         }
-      }
-      if (rules.query) {
-        rules.query = isArray(rules.query);
-        for (const name of rules.query) {
-          if (!ctx.query[name])
-            ctx.throw(412, `${method} Request query: ${name} required`);
+        if (rules.query) {
+          rules.query = isArray(rules.query);
+          for (const name of rules.query) {
+            if (!ctx.query[name])
+              ctx.throw(412, `${method} Request query: ${name} required`);
+          }
         }
-      }
-      if (rules.body) {
-        const req = ctx.request.body;
-        if (!req) {
-          ctx.throw(412, `${method} Request body are required`);
-        } else if (typeof req === 'object') {
-          for (const name of Object.keys(rules.body)) {
-            if (!req[name])
-              ctx.throw(412, `${method} Request body: ${name} required`);
-            if (typeof req[name] != rules.body[name])
-              ctx.throw(
-                412,
-                `${method} Request body: ${name} is ${rules.body[name]}`,
-              );
+        if (rules.body) {
+          const req = ctx.request.body;
+          if (!req) {
+            ctx.throw(412, `${method} Request body are required`);
+          } else if (typeof req === 'object') {
+            for (const name of Object.keys(rules.body)) {
+              if (!req[name])
+                ctx.throw(412, `${method} Request body: ${name} required`);
+              if (typeof req[name] != rules.body[name])
+                ctx.throw(
+                  412,
+                  `${method} Request body: ${name} is ${rules.body[name]}`
+                );
+            }
           }
         }
       }
@@ -131,3 +116,32 @@ export const Required = (rules: IRequiredConfig) => {
     });
   };
 };
+
+interface IMethodOptions {
+  name: string;
+  target: any;
+  controllers: any;
+  config?: IRouterConfig;
+  unless?: boolean;
+}
+
+interface IClassMethodMap {
+  [key: string]: IMethodOptions[];
+}
+
+export interface IRouterConfig {
+  method: MethodType;
+  path: string;
+  unless?: boolean;
+}
+
+export interface IRequiredConfig {
+  params?: string | string[];
+  query?: string | string[];
+  body?: any;
+}
+
+interface IRouteOptions {
+  path: string;
+  unless?: boolean;
+}

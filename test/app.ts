@@ -18,8 +18,8 @@ const router = new Router({
     secret: 'skmdev',
     getToken: (ctx: Koa.Context) => {
       return ctx.query.token;
-    },
-  },
+    }
+  }
 });
 
 router
@@ -32,7 +32,8 @@ router.post('/graphql', graphqlKoa({ schema: Schema })).unless();
 
 router.get('/graphql', graphiqlKoa({ endpointURL: '/graphql' })).unless();
 
-router.registerRouters();
+app.use(router.routes());
+app.use(router.allowedMethods());
 
 app.listen(8000);
 

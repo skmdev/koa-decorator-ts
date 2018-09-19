@@ -6,6 +6,10 @@ Koa Decorator(Type Script Support)
 npm i koa-decorator-ts --save
 ```
 
+# Introduction
+This package is a decorator for koa, including the koa-router, graohql.
+You can use decorators to define the path for routing or create a graphql resolver like koa controller method
+
 # Usage
 
 > app.js
@@ -32,9 +36,9 @@ router.all('/graphql', graphqlKoa({ schema: Schema })).unless();
 router.get('/graphql', graphiqlKoa({ endpointURL: '/graphql' })).unless();
 
 
-
 // 3. Register the routers
-router.registerRouters();
+app.use(router.routes());
+app.use(router.allowedMethods());
 
 ...
 
@@ -45,7 +49,7 @@ app.listen('8080');
 
 ```javascript
 import Koa from 'koa';
-import { Controller, Route, Middleware, Required, Graphql } from '../../index';
+import { Controller, Route, Middleware, Required, Graphql, Unless } from '../../index';
 
 // Prefix of api path
 @Controller('/user')
@@ -55,7 +59,8 @@ class UserController {
   }
 
   // Post /user/login
-  @Route.post({ path: '/login', unless: true })
+  @Unless// it is equal to koa-jwt unless
+  @Route.post('/login')
   @Required({
     // Require { userEmail, password } in the body
     body: {
@@ -68,7 +73,9 @@ class UserController {
   }
 
   // Get /user/:userId
-  @Route.get({ path: '/:userId' }) // if unless === true, it is equal to koa-jwt unless
+
+  @Unless// it is equal to koa-jwt unless
+  @Route.get('/:userId') 
   @Required({ params: 'userId' }) // Require for "userId" in the params
   @Middleware(UserController.middlewareLog) // Add Middleware
   static async getUserInfo(ctx: Koa.Context): Promise<void> {
@@ -76,7 +83,7 @@ class UserController {
   }
 
   // Get /user?top=10&star=1000000
-  @Route.get({ path: '/' })
+  @Route.get('/')
   @Required({ query: [ 'top', 'star' ] }) // Require for "top", "star" in the query
   @Middleware(UserController.middlewareLog)
   static async getUsers(ctx: Koa.Context): Promise<void> {
@@ -123,7 +130,7 @@ class UserController {
      * info is representing the graphql info
      * 
      */
-    const { args } = ctx.graphql;
+    const { args } = ctx.graphql!; // add ! to ensure it is graphql resolver
 
     const users = [
       { username: 'skmdev', role: 'admin', userEmail: 'skmdev29@gmail.com' },
@@ -143,6 +150,6 @@ export default UserController;
 
 # Todo
 
-~~Jwt~~
-~~Graphql~~
-Test case(90%)
+Jwt (Done)
+Graphql (Done)
+Test case (90%)

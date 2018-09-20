@@ -25,6 +25,7 @@ const router = new Router({
     apiDirPath: `${__dirname}/controllers` // The controllers directory
     jwt: { // [Optional] koa-jwt options
       secret: 'skmdev29',
+      unless: [/\/graphql$/] // unless grapgql
     }
 });
 
@@ -32,8 +33,9 @@ const router = new Router({
 router.get('/unlessPath', () => {}).unless();
 
 // [Optional] Graphql inital
-router.all('/graphql', graphqlKoa({ schema: Schema })).unless();
-router.get('/graphql', graphiqlKoa({ endpointURL: '/graphql' })).unless();
+const graphqlServer = new ApolloServer({ schema });
+graphqlServer.applyMiddleware({ app });
+
 
 
 // 3. Register the routers
@@ -42,7 +44,7 @@ app.use(router.allowedMethods());
 
 ...
 
-app.listen('8080');
+app.listen(8080);
 ```
 
 > /controllers/user.ts
@@ -55,6 +57,7 @@ import { Controller, Route, Middleware, Required, Graphql, Unless } from '../../
 @Controller('/user')
 class UserController {
   static async middlewareLog(ctx: Koa.Context, next: Function) {
+    console.log('This is middleware');
     await next();
   }
 

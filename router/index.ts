@@ -23,7 +23,13 @@ class Router extends KoaRouter {
     super(opt);
     this.app = opt.app;
     this.apiDirPath = opt.apiDirPath;
-    this.jwtOptions = opt.jwt;
+    if (opt.jwt) {
+      const { unless, ...options } = opt.jwt;
+      this.jwtOptions = options;
+      if (unless) {
+        this.unlessPath = unless;
+      }
+    }
   }
 
   private pathToRegexp(path: string): RegExp {
@@ -64,6 +70,7 @@ class Router extends KoaRouter {
 }
 
 export interface JwtOptions extends KoaJwt.Options {
+  unless?: (RegExp | string)[];
   getToken?(ctx: KoaJwt.Options | Koa.Context): string;
 }
 

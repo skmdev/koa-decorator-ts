@@ -91,7 +91,7 @@ class UserController {
   }
 
   // Patch /user/:userId
-  @Route.patch({ path: '/:userId' })
+  @Route.patch('/:userId')
   @Required({
     // Require { userNickName, userAddress } in the body
     body: {
@@ -104,14 +104,14 @@ class UserController {
   }
 
   // Put /user/:userId/follow
-  @Route.put({ path: '/:userId/follow' })
+  @Route.put('/:userId/follow')
   @Required({ params: [ 'userId' ] }) // Require for "userId" in the params
   static async followUser(ctx: Koa.Context): Promise<void> {
     ctx.body = true;
   }
 
   // Delete /user/:userId/follow
-  @Route.del({ path: '/:userId/follow' })
+  @Route.del('/:userId/follow')
   @Required({ params: [ 'userId' ] }) // Require for "userId" in the params
   static async unfollowUser(ctx: Koa.Context): Promise<void> {
     ctx.body = true;

@@ -2,7 +2,7 @@ tslib
 tsconfig.json
 
 /coverage
-
+/test
 # ignore the .ts files
 *.ts
 

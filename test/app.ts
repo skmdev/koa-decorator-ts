@@ -2,7 +2,7 @@ import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 
 /* Graphql */
-import { graphqlKoa, graphiqlKoa } from 'apollo-server-koa';
+const { ApolloServer } = require('apollo-server-koa');
 
 import Router from '../router';
 import Schema from './schemas';
@@ -18,7 +18,8 @@ const router = new Router({
     secret: 'skmdev',
     getToken: (ctx: Koa.Context) => {
       return ctx.query.token;
-    }
+    },
+    unless: [/\/graphql$/] // unless grapgql
   }
 });
 
@@ -28,9 +29,9 @@ router
   })
   .unless();
 
-router.post('/graphql', graphqlKoa({ schema: Schema })).unless();
+const graphqlServer = new ApolloServer({ schema: Schema });
 
-router.get('/graphql', graphiqlKoa({ endpointURL: '/graphql' })).unless();
+graphqlServer.applyMiddleware({ app });
 
 app.use(router.routes());
 app.use(router.allowedMethods());

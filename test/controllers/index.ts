@@ -1,11 +1,18 @@
 import Koa from 'koa';
-import { Controller, Route, Middleware, Required, Graphql } from '../../index';
-import { Unless } from '../../decorators/router';
+import {
+  Controller,
+  Route,
+  Middleware,
+  Required,
+  Graphql,
+  Unless
+} from '../../index';
 
 // Prefix of api path
 @Controller('/user')
 class UserController {
   static async middlewareLog(ctx: Koa.Context, next: Function) {
+    console.log('This is middleware');
     await next();
   }
 

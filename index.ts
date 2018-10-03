@@ -4,9 +4,10 @@ declare module 'koa' {
       args: {
         [key: string]: any;
       };
+      root: any;
+      info: any;
+      body?: any;
     };
-    root: any;
-    info: any;
   }
 }
 

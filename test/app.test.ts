@@ -21,14 +21,21 @@ it('can Get /user with token', async () => {
 });
 
 it('cannot Get /user without token', async () => {
-  const response = await request(server).get('/user').query({ top: 1, star: 2 });
+  const response = await request(server)
+    .get('/user')
+    .query({ top: 1, star: 2 });
   expect(response.status).toBe(401);
 });
 
 it('can Get /user/:userId with token', async () => {
-  const response = await request(server).get('/user/1').set('Authorization', `Bearer ${token}`);
+  const response = await request(server)
+    .get('/user/1')
+    .set('Authorization', `Bearer ${token}`);
   expect(response.status).toBe(200);
-  expect(response.body).toMatchObject({ userName: 'skm', userEmail: 'skmdev@gmail.com' });
+  expect(response.body).toMatchObject({
+    userName: 'skm',
+    userEmail: 'skmdev@gmail.com'
+  });
 });
 
 it('cannot Get /user/:userId without token', async () => {
@@ -113,11 +120,47 @@ it('can Query graphql getUsers', async () => {
           role 
         }
       }
-    `,
+    `
   });
   expect(response.status).toBe(200);
   expect(response.body).toEqual({
-    data: { getUsers: [ { username: 'skmdev', userEmail: 'skmdev29@gmail.com', role: 'admin' } ] },
+    data: {
+      getUsers: [
+        { username: 'skmdev', userEmail: 'skmdev29@gmail.com', role: 'admin' }
+      ]
+    }
+  });
+});
+
+it('can Query graphql getUsers and getUser in same request', async () => {
+  const response = await request(server).post('/graphql').send({
+    query: `
+      {
+        getUsers(role: "admin") {
+          username 
+          userEmail
+          role 
+        }
+        getUser(username: "foo") {
+          username 
+          userEmail
+          role 
+        }
+      }
+    `
+  });
+  expect(response.status).toBe(200);
+  expect(response.body).toEqual({
+    data: {
+      getUsers: [
+        { username: 'skmdev', userEmail: 'skmdev29@gmail.com', role: 'admin' }
+      ],
+      getUser: {
+        username: 'foo',
+        userEmail: 'bar',
+        role: 'user'
+      }
+    }
   });
 });
 

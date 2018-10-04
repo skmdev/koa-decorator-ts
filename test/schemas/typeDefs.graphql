@@ -1,5 +1,6 @@
 type Query {
   getUsers(role: String = "user"): [User!]
+  getUser(username: String): User
 }
 
 type User {

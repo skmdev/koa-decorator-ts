@@ -73,6 +73,19 @@ class UserController {
     ctx.body = true;
   }
 
+  @Graphql
+  @Middleware(UserController.middlewareLog)
+  static async getUser(ctx: Koa.Context) {
+    const { args } = ctx.graphql!;
+
+    const users = [
+      { username: 'skmdev', role: 'admin', userEmail: 'skmdev29@gmail.com' },
+      { username: 'foo', role: 'user', userEmail: 'bar' }
+    ];
+
+    ctx.body = users.find((user) => user.username === args.username);
+  }
+
   @Graphql // transfrom to graphql resolver
   @Middleware(UserController.middlewareLog)
   static async getUsersGraph(ctx: Koa.Context) {

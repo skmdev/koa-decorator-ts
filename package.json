@@ -46,7 +46,11 @@
     "typescript": "^2.9.2"
   },
   "jest": {
-    "moduleFileExtensions": ["ts", "tsx", "js"],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
     "transform": {
       "^.+\\.(ts|tsx)$": "<rootDir>/test/preprocessor.js"
     },
@@ -57,7 +61,10 @@
     "verbose": true,
     "coverageDirectory": "coverage",
     "collectCoverage": true,
-    "coverageReporters": ["lcov", "text"]
+    "coverageReporters": [
+      "lcov",
+      "text"
+    ]
   },
   "bugs": {
     "url": "https://github.com/skmdev/koa-decorator-ts/issues"

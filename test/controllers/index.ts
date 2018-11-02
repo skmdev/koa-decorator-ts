@@ -22,8 +22,16 @@ class UserController {
   @Required({
     // Require { userEmail, password } in the body
     body: {
-      userEmail: 'string',
-      password: 'string'
+      type: 'object',
+      properties: {
+        userEmail: {
+          type: 'string'
+        },
+        password: {
+          type: 'string'
+        }
+      },
+      required: ['userEmail', 'password']
     }
   })
   static async login(ctx: Koa.Context): Promise<void> {
@@ -32,7 +40,17 @@ class UserController {
 
   // Get /user/:userId
   @Route.get('/:userId') // if unless === true, it is equal to koa-jwt unless
-  @Required({ params: 'userId' }) // Require for "userId" in the params
+  @Required({
+    params: {
+      type: 'object',
+      properties: {
+        userId: {
+          type: 'string'
+        }
+      },
+      required: ['userId']
+    }
+  }) // Require for "userId" in the params
   @Middleware(UserController.middlewareLog) // Add Middleware
   static async getUserInfo(ctx: Koa.Context): Promise<void> {
     ctx.body = { userName: 'skm', userEmail: 'skmdev@gmail.com' };
@@ -40,7 +58,16 @@ class UserController {
 
   // Get /user?top=10&star=1000000
   @Route.get('/')
-  @Required({ query: ['top', 'star'] }) // Require for "top", "star" in the query
+  @Required({
+    query: {
+      type: 'object',
+      properties: {
+        top: { type: 'string' },
+        star: { type: 'string' }
+      },
+      required: ['top', 'star']
+    }
+  }) // Require for "top", "star" in the query
   @Middleware(UserController.middlewareLog)
   static async getUsers(ctx: Koa.Context): Promise<void> {
     ctx.body = { userName: 'skm', userEmail: 'skmdev@gmail.com' };
@@ -51,8 +78,16 @@ class UserController {
   @Required({
     // Require { userNickName, userAddress } in the body
     body: {
-      userNickName: 'string',
-      userAddress: 'string'
+      type: 'object',
+      properties: {
+        userNickName: {
+          type: 'string'
+        },
+        userAddress: {
+          type: 'string'
+        }
+      },
+      required: ['userNickName', 'userAddress']
     }
   })
   static async updateUserInfo(ctx: Koa.Context): Promise<void> {
@@ -61,14 +96,34 @@ class UserController {
 
   // Put /user/:userId/follow
   @Route.put('/:userId/follow')
-  @Required({ params: ['userId'] }) // Require for "userId" in the params
+  @Required({
+    params: {
+      type: 'object',
+      properties: {
+        userId: {
+          type: 'string'
+        }
+      },
+      required: ['userId']
+    }
+  }) // Require for "userId" in the params
   static async followUser(ctx: Koa.Context): Promise<void> {
     ctx.body = true;
   }
 
   // Delete /user/:userId/follow
   @Route.del('/:userId/follow')
-  @Required({ params: ['userId'] }) // Require for "userId" in the params
+  @Required({
+    params: {
+      type: 'object',
+      properties: {
+        userId: {
+          type: 'string'
+        }
+      },
+      required: ['userId']
+    }
+  }) // Require for "userId" in the params
   static async unfollowUser(ctx: Koa.Context): Promise<void> {
     ctx.body = true;
   }

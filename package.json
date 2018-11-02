@@ -37,6 +37,7 @@
     "graphql-import": "^0.5.3",
     "graphql-tools": "^2.24.0",
     "jest": "^22.4.4",
+    "jsonschema": "^1.2.4",
     "jsonwebtoken": "^8.3.0",
     "koa-bodyparser": "^4.2.1",
     "koa-graphql": "^0.7.5",

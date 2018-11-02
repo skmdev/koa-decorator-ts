@@ -20,7 +20,8 @@
     "koa": "^2.6.1",
     "koa-compose": "^4.1.0",
     "koa-jwt": "^3.5.1",
-    "koa-router": "^7.4.0"
+    "koa-router": "^7.4.0",
+    "jsonschema": "^1.2.4"
   },
   "devDependencies": {
     "@types/glob": "^5.0.36",
@@ -37,7 +38,6 @@
     "graphql-import": "^0.5.3",
     "graphql-tools": "^2.24.0",
     "jest": "^22.4.4",
-    "jsonschema": "^1.2.4",
     "jsonwebtoken": "^8.3.0",
     "koa-bodyparser": "^4.2.1",
     "koa-graphql": "^0.7.5",
@@ -46,11 +46,7 @@
     "typescript": "^2.9.2"
   },
   "jest": {
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js"
-    ],
+    "moduleFileExtensions": ["ts", "tsx", "js"],
     "transform": {
       "^.+\\.(ts|tsx)$": "<rootDir>/test/preprocessor.js"
     },
@@ -61,10 +57,7 @@
     "verbose": true,
     "coverageDirectory": "coverage",
     "collectCoverage": true,
-    "coverageReporters": [
-      "lcov",
-      "text"
-    ]
+    "coverageReporters": ["lcov", "text"]
   },
   "bugs": {
     "url": "https://github.com/skmdev/koa-decorator-ts/issues"

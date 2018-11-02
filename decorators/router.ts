@@ -1,7 +1,9 @@
 import Router, { SymbolRoutePrefix, MethodType } from '../router';
 import { normalizePath, isArray, Decorate } from '../utils';
 import { Context } from 'koa';
+import { Validator, Schema } from 'jsonschema';
 
+const v = new Validator();
 const classMethods: IClassMethodMap = {};
 
 function updateMethodOptions(target: any, name: string, options: any) {
@@ -81,34 +83,36 @@ export const Required = (rules: IRequiredConfig) => {
       const method = ctx.method.toLowerCase();
       // Skip checking for graphql
       if (!ctx.graphql) {
-        if (rules.params) {
-          rules.params = isArray(rules.params);
-          for (const name of rules.params) {
-            if (!ctx.params[name])
-              ctx.throw(412, `${method} Request params: ${name} required`);
+        if (rules.params && rules.params) {
+          const validateResult = v.validate(ctx.params, rules.params);
+
+          if (!validateResult.valid) {
+            ctx.throw(
+              412,
+              `${method} Request params: ${validateResult.errors[0].message}`
+            );
           }
         }
-        if (rules.query) {
-          rules.query = isArray(rules.query);
-          for (const name of rules.query) {
-            if (!ctx.query[name])
-              ctx.throw(412, `${method} Request query: ${name} required`);
+
+        if (rules.query && rules.query) {
+          const validateResult = v.validate(ctx.query, rules.query);
+
+          if (!validateResult.valid) {
+            ctx.throw(
+              412,
+              `${method} Request query: ${validateResult.errors[0].message}`
+            );
           }
         }
-        if (rules.body) {
-          const req = ctx.request.body;
-          if (!req) {
-            ctx.throw(412, `${method} Request body are required`);
-          } else if (typeof req === 'object') {
-            for (const name of Object.keys(rules.body)) {
-              if (!req[name])
-                ctx.throw(412, `${method} Request body: ${name} required`);
-              if (typeof req[name] != rules.body[name])
-                ctx.throw(
-                  412,
-                  `${method} Request body: ${name} is ${rules.body[name]}`
-                );
-            }
+
+        if (rules.body && rules.body) {
+          const validateResult = v.validate(ctx.request.body, rules.body);
+
+          if (!validateResult.valid) {
+            ctx.throw(
+              412,
+              `${method} Request body: ${validateResult.errors[0].message}`
+            );
           }
         }
       }
@@ -136,9 +140,9 @@ export interface IRouterConfig {
 }
 
 export interface IRequiredConfig {
-  params?: string | string[];
-  query?: string | string[];
-  body?: any;
+  params?: Schema;
+  query?: Schema;
+  body?: Schema;
 }
 
 interface IRouteOptions {

@@ -1,5 +1,5 @@
 import path from 'path';
-import Koa from 'koa';
+import { Context, Middleware } from 'koa';
 import KoaRouter from 'koa-router';
 import glob from 'glob';
 import KoaJwt from 'koa-jwt';
@@ -8,8 +8,7 @@ import { isArray, normalizePath } from '../utils';
 export const SymbolRoutePrefix = Symbol('routePrefix');
 
 class Router extends KoaRouter {
-  private app: IRouterConfig['app'];
-  private apiDirPath: IRouterConfig['apiDirPath'];
+  private dir: IRouterConfig['dir'];
   private jwtOptions: IRouterConfig['jwt'];
 
   private unlessPath: (string | RegExp)[] = [];
@@ -19,16 +18,16 @@ class Router extends KoaRouter {
       target: any;
       method: MethodType;
       path: string;
-      unless?: boolean;
+      unless: boolean;
       priority: number;
     },
-    Function | Function[]
+    Middleware[]
   > = new Map();
 
   constructor(opt: IRouterConfig) {
     super(opt);
-    this.app = opt.app;
-    this.apiDirPath = opt.apiDirPath;
+
+    this.dir = path.join(__dirname, opt.dir);
     if (opt.jwt) {
       const { unless, ...options } = opt.jwt;
       this.jwtOptions = options;
@@ -49,32 +48,38 @@ class Router extends KoaRouter {
 
   public routes() {
     glob
-      .sync(path.join(this.apiDirPath, './*.js'))
+      .sync(path.join(this.dir, './*.js'))
       .forEach((item: string) => require(item));
     glob
-      .sync(path.join(this.apiDirPath, './*.ts'))
+      .sync(path.join(this.dir, './*.ts'))
       .forEach((item: string) => require(item));
 
     const sortedPriority = [...Router._DecoratedRouters].sort(
       (a, b) => b[0].priority - a[0].priority
     );
 
+    let CheckJwtMiddleware;
+    if (this.jwtOptions) {
+      CheckJwtMiddleware = KoaJwt(this.jwtOptions).unless({
+        path: this.unlessPath,
+      });
+    }
+
     for (const [config, controller] of sortedPriority) {
       const controllers = isArray(controller);
       let prefixPath = config.target[SymbolRoutePrefix];
+
       if (prefixPath) {
         prefixPath = normalizePath(prefixPath);
       }
+
       const routerPath = `${prefixPath}${config.path}`;
 
-      if (config.unless && routerPath.indexOf('*') === -1) {
-        this.unlessPath.push(this.pathToRegexp(routerPath));
+      if (!config.unless && CheckJwtMiddleware) {
+        controllers.unshift(CheckJwtMiddleware);
       }
 
       this[config.method](routerPath, ...controllers);
-    }
-    if (this.jwtOptions) {
-      this.app.use(KoaJwt(this.jwtOptions).unless({ path: this.unlessPath }));
     }
     return super.routes();
   }
@@ -82,12 +87,11 @@ class Router extends KoaRouter {
 
 export interface JwtOptions extends KoaJwt.Options {
   unless?: (RegExp | string)[];
-  getToken?(ctx: KoaJwt.Options | Koa.Context): string;
+  getToken?(ctx: KoaJwt.Options | Context): string;
 }
 
 export interface IRouterConfig extends KoaRouter.IRouterOptions {
-  app: Koa;
-  apiDirPath: string;
+  dir: string;
   jwt?: JwtOptions;
 }
 

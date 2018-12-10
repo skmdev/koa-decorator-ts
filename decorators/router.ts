@@ -73,7 +73,7 @@ export const Controller = (path: string) => {
       Router._DecoratedRouters.set(
         {
           target,
-          unless: classMethod.unless,
+          unless: classMethod.unless || false,
           priority: classMethod.priority || 0,
           ...classMethod.config!,
         },
@@ -95,7 +95,6 @@ export const Required = (rules: IRequiredConfig) => {
       if (!ctx.graphql) {
         if (rules.params) {
           const validateResult = v.validate(ctx.params, rules.params);
-
           if (!validateResult.valid) {
             ctx.throw(
               412,
@@ -106,7 +105,6 @@ export const Required = (rules: IRequiredConfig) => {
 
         if (rules.query) {
           const validateResult = v.validate(ctx.query, rules.query);
-
           if (!validateResult.valid) {
             ctx.throw(
               412,
@@ -117,9 +115,7 @@ export const Required = (rules: IRequiredConfig) => {
 
         if (rules.body) {
           const validateResult = v.validate(ctx.request.body, rules.body);
-          // console.log(validateResult.valid, ctx.request.body);
           if (!validateResult.valid) {
-            console.log('aa');
             ctx.throw(
               412,
               `${method} Request body: ${validateResult.errors[0].message}`

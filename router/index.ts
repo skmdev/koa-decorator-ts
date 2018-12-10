@@ -1,5 +1,5 @@
 import path from 'path';
-import Koa from 'koa';
+import { Context, Middleware } from 'koa';
 import KoaRouter from 'koa-router';
 import glob from 'glob';
 import KoaJwt from 'koa-jwt';
@@ -8,7 +8,6 @@ import { isArray, normalizePath } from '../utils';
 export const SymbolRoutePrefix = Symbol('routePrefix');
 
 class Router extends KoaRouter {
-  private app: IRouterConfig['app'];
   private apiDirPath: IRouterConfig['apiDirPath'];
   private jwtOptions: IRouterConfig['jwt'];
 
@@ -19,15 +18,14 @@ class Router extends KoaRouter {
       target: any;
       method: MethodType;
       path: string;
-      unless?: boolean;
+      unless: boolean;
       priority: number;
     },
-    Function | Function[]
+    Middleware[]
   > = new Map();
 
   constructor(opt: IRouterConfig) {
     super(opt);
-    this.app = opt.app;
     this.apiDirPath = opt.apiDirPath;
     if (opt.jwt) {
       const { unless, ...options } = opt.jwt;
@@ -82,11 +80,10 @@ class Router extends KoaRouter {
 
 export interface JwtOptions extends KoaJwt.Options {
   unless?: (RegExp | string)[];
-  getToken?(ctx: KoaJwt.Options | Koa.Context): string;
+  getToken?(ctx: KoaJwt.Options | Context): string;
 }
 
 export interface IRouterConfig extends KoaRouter.IRouterOptions {
-  app: Koa;
   apiDirPath: string;
   jwt?: JwtOptions;
 }

@@ -12,7 +12,6 @@ const app = new Koa();
 app.use(bodyParser());
 
 const router = new Router({
-  app,
   apiDirPath: `${__dirname}/controllers`,
   jwt: {
     secret: 'skmdev',

@@ -12,7 +12,7 @@ const app = new Koa();
 app.use(bodyParser());
 
 const router = new Router({
-  apiDirPath: `${__dirname}/controllers`,
+  dir: './controllers',
   jwt: {
     secret: 'skmdev',
     getToken: (ctx: Koa.Context) => {

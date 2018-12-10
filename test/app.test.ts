@@ -1,4 +1,3 @@
-import Koa from 'koa';
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
 
@@ -10,6 +9,15 @@ const server = app.listen(9999);
 
 afterEach(() => {
   server.close();
+});
+
+it('can Route * at last', async () => {
+  const response = await request(server)
+    .get('/user/unknown/route')
+    .set('Authorization', `Bearer ${token}`);
+
+  expect(response.status).toBe(200);
+  expect(response.text).toBe('haha');
 });
 
 it('can Get /user with token', async () => {
@@ -34,7 +42,7 @@ it('can Get /user/:userId with token', async () => {
   expect(response.status).toBe(200);
   expect(response.body).toMatchObject({
     userName: 'skm',
-    userEmail: 'skmdev@gmail.com'
+    userEmail: 'skmdev@gmail.com',
   });
 });
 
@@ -77,7 +85,7 @@ it('cannot Post /user/login with userEmail is not string', async () => {
   expect(response.status).toBe(412);
 });
 
-it('cannot Post /user/login with userEmail is not string', async () => {
+it('cannot Post /user/login with password is not string', async () => {
   const response = await request(server)
     .post('/user/login')
     .send({ userEmail: 'skmdev29@gmail.com', password: 2 });
@@ -120,15 +128,15 @@ it('can Query graphql getUsers', async () => {
           role 
         }
       }
-    `
+    `,
   });
   expect(response.status).toBe(200);
   expect(response.body).toEqual({
     data: {
       getUsers: [
-        { username: 'skmdev', userEmail: 'skmdev29@gmail.com', role: 'admin' }
-      ]
-    }
+        { username: 'skmdev', userEmail: 'skmdev29@gmail.com', role: 'admin' },
+      ],
+    },
   });
 });
 
@@ -147,20 +155,20 @@ it('can Query graphql getUsers and getUser in same request', async () => {
           role 
         }
       }
-    `
+    `,
   });
   expect(response.status).toBe(200);
   expect(response.body).toEqual({
     data: {
       getUsers: [
-        { username: 'skmdev', userEmail: 'skmdev29@gmail.com', role: 'admin' }
+        { username: 'skmdev', userEmail: 'skmdev29@gmail.com', role: 'admin' },
       ],
       getUser: {
         username: 'foo',
         userEmail: 'bar',
-        role: 'user'
-      }
-    }
+        role: 'user',
+      },
+    },
   });
 });
 

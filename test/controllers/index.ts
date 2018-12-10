@@ -5,7 +5,8 @@ import {
   Middleware,
   Required,
   Graphql,
-  Unless
+  Unless,
+  Priority,
 } from '../../index';
 
 // Prefix of api path
@@ -14,6 +15,12 @@ class UserController {
   static async middlewareLog(ctx: Koa.Context, next: Function) {
     console.log('This is middleware');
     await next();
+  }
+
+  @Priority(-1000)
+  @Route.all('*')
+  static async handleAll(ctx: Koa.Context, next: any) {
+    ctx.body = 'haha';
   }
 
   // Post /user/login
@@ -25,16 +32,16 @@ class UserController {
       type: 'object',
       properties: {
         userEmail: {
-          type: 'string'
+          type: 'string',
         },
         password: {
-          type: 'string'
-        }
+          type: 'string',
+        },
       },
-      required: ['userEmail', 'password']
-    }
+      required: ['userEmail', 'password'],
+    },
   })
-  static async login(ctx: Koa.Context): Promise<void> {
+  static async login(ctx: Koa.Context) {
     ctx.body = true;
   }
 
@@ -45,14 +52,14 @@ class UserController {
       type: 'object',
       properties: {
         userId: {
-          type: 'string'
-        }
+          type: 'string',
+        },
       },
-      required: ['userId']
-    }
+      required: ['userId'],
+    },
   }) // Require for "userId" in the params
   @Middleware(UserController.middlewareLog) // Add Middleware
-  static async getUserInfo(ctx: Koa.Context): Promise<void> {
+  static async getUserInfo(ctx: Koa.Context) {
     ctx.body = { userName: 'skm', userEmail: 'skmdev@gmail.com' };
   }
 
@@ -63,13 +70,13 @@ class UserController {
       type: 'object',
       properties: {
         top: { type: 'string' },
-        star: { type: 'string' }
+        star: { type: 'string' },
       },
-      required: ['top', 'star']
-    }
+      required: ['top', 'star'],
+    },
   }) // Require for "top", "star" in the query
   @Middleware(UserController.middlewareLog)
-  static async getUsers(ctx: Koa.Context): Promise<void> {
+  static async getUsers(ctx: Koa.Context) {
     ctx.body = { userName: 'skm', userEmail: 'skmdev@gmail.com' };
   }
 
@@ -81,16 +88,16 @@ class UserController {
       type: 'object',
       properties: {
         userNickName: {
-          type: 'string'
+          type: 'string',
         },
         userAddress: {
-          type: 'string'
-        }
+          type: 'string',
+        },
       },
-      required: ['userNickName', 'userAddress']
-    }
+      required: ['userNickName', 'userAddress'],
+    },
   })
-  static async updateUserInfo(ctx: Koa.Context): Promise<void> {
+  static async updateUserInfo(ctx: Koa.Context) {
     ctx.body = true;
   }
 
@@ -101,13 +108,13 @@ class UserController {
       type: 'object',
       properties: {
         userId: {
-          type: 'string'
-        }
+          type: 'string',
+        },
       },
-      required: ['userId']
-    }
+      required: ['userId'],
+    },
   }) // Require for "userId" in the params
-  static async followUser(ctx: Koa.Context): Promise<void> {
+  static async followUser(ctx: Koa.Context) {
     ctx.body = true;
   }
 
@@ -118,13 +125,13 @@ class UserController {
       type: 'object',
       properties: {
         userId: {
-          type: 'string'
-        }
+          type: 'string',
+        },
       },
-      required: ['userId']
-    }
+      required: ['userId'],
+    },
   }) // Require for "userId" in the params
-  static async unfollowUser(ctx: Koa.Context): Promise<void> {
+  static async unfollowUser(ctx: Koa.Context) {
     ctx.body = true;
   }
 
@@ -135,7 +142,7 @@ class UserController {
 
     const users = [
       { username: 'skmdev', role: 'admin', userEmail: 'skmdev29@gmail.com' },
-      { username: 'foo', role: 'user', userEmail: 'bar' }
+      { username: 'foo', role: 'user', userEmail: 'bar' },
     ];
 
     ctx.body = users.find((user) => user.username === args.username);
@@ -158,7 +165,7 @@ class UserController {
 
     const users = [
       { username: 'skmdev', role: 'admin', userEmail: 'skmdev29@gmail.com' },
-      { username: 'foo', role: 'user', userEmail: 'bar' }
+      { username: 'foo', role: 'user', userEmail: 'bar' },
     ];
 
     // ctx.body is response data;

@@ -19,8 +19,8 @@ const router = new Router({
     getToken: (ctx: Koa.Context) => {
       return ctx.query.token;
     },
-    unless: [/\/graphql$/] // unless grapgql
-  }
+    unless: [/\/graphql$/], // unless grapgql
+  },
 });
 
 router

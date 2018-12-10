@@ -15,7 +15,13 @@ class Router extends KoaRouter {
   private unlessPath: (string | RegExp)[] = [];
 
   static _DecoratedRouters: Map<
-    { target: any; method: MethodType; path: string; unless?: boolean },
+    {
+      target: any;
+      method: MethodType;
+      path: string;
+      unless?: boolean;
+      priority: number;
+    },
     Function | Function[]
   > = new Map();
 
@@ -48,7 +54,12 @@ class Router extends KoaRouter {
     glob
       .sync(path.join(this.apiDirPath, './*.ts'))
       .forEach((item: string) => require(item));
-    for (const [config, controller] of Router._DecoratedRouters) {
+
+    const sortedPriority = [...Router._DecoratedRouters].sort(
+      (a, b) => b[0].priority - a[0].priority
+    );
+
+    for (const [config, controller] of sortedPriority) {
       const controllers = isArray(controller);
       let prefixPath = config.target[SymbolRoutePrefix];
       if (prefixPath) {
@@ -56,7 +67,7 @@ class Router extends KoaRouter {
       }
       const routerPath = `${prefixPath}${config.path}`;
 
-      if (config.unless) {
+      if (config.unless && routerPath.indexOf('*') === -1) {
         this.unlessPath.push(this.pathToRegexp(routerPath));
       }
 
@@ -89,7 +100,7 @@ export enum MethodType {
   Delete = 'delete',
   Patch = 'patch',
   Head = 'head',
-  Options = 'options'
+  Options = 'options',
 }
 
 interface Router {

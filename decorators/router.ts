@@ -1,5 +1,5 @@
 import Router, { SymbolRoutePrefix, MethodType } from '../router';
-import { normalizePath, isArray, Decorate } from '../utils';
+import { normalizePath, Decorate } from '../utils';
 import { Context } from 'koa';
 import { Validator, Schema } from 'jsonschema';
 
@@ -25,7 +25,7 @@ function updateMethodOptions(target: any, name: string, options: any) {
       name,
       target,
       controllers: target[name],
-      ...options
+      ...options,
     });
   }
 }
@@ -36,6 +36,14 @@ export const Unless: Function = (
   value: ParameterDecorator
 ) => {
   updateMethodOptions(target, name, { unless: true });
+};
+
+export const Priority = (priority: number): Function => (
+  target: any,
+  name: string,
+  value: ParameterDecorator
+) => {
+  updateMethodOptions(target, name, { priority });
 };
 
 const route = (config: IRouterConfig): Function => {
@@ -53,7 +61,8 @@ export const Route = {
   post: getRoute(MethodType.Post),
   put: getRoute(MethodType.Put),
   del: getRoute(MethodType.Delete),
-  patch: getRoute(MethodType.Patch)
+  patch: getRoute(MethodType.Patch),
+  all: getRoute(MethodType.All),
 };
 
 export const Controller = (path: string) => {
@@ -65,7 +74,8 @@ export const Controller = (path: string) => {
         {
           target,
           unless: classMethod.unless,
-          ...classMethod.config!
+          priority: classMethod.priority || 0,
+          ...classMethod.config!,
         },
         classMethod.controllers
       );
@@ -83,7 +93,7 @@ export const Required = (rules: IRequiredConfig) => {
       const method = ctx.method.toLowerCase();
       // Skip checking for graphql
       if (!ctx.graphql) {
-        if (rules.params && rules.params) {
+        if (rules.params) {
           const validateResult = v.validate(ctx.params, rules.params);
 
           if (!validateResult.valid) {
@@ -94,7 +104,7 @@ export const Required = (rules: IRequiredConfig) => {
           }
         }
 
-        if (rules.query && rules.query) {
+        if (rules.query) {
           const validateResult = v.validate(ctx.query, rules.query);
 
           if (!validateResult.valid) {
@@ -105,10 +115,11 @@ export const Required = (rules: IRequiredConfig) => {
           }
         }
 
-        if (rules.body && rules.body) {
+        if (rules.body) {
           const validateResult = v.validate(ctx.request.body, rules.body);
-
+          // console.log(validateResult.valid, ctx.request.body);
           if (!validateResult.valid) {
+            console.log('aa');
             ctx.throw(
               412,
               `${method} Request body: ${validateResult.errors[0].message}`
@@ -127,6 +138,7 @@ interface IMethodOptions {
   controllers: any;
   config?: IRouterConfig;
   unless?: boolean;
+  priority?: number;
 }
 
 interface IClassMethodMap {
@@ -136,16 +148,10 @@ interface IClassMethodMap {
 export interface IRouterConfig {
   method: MethodType;
   path: string;
-  unless?: boolean;
 }
 
 export interface IRequiredConfig {
   params?: Schema;
   query?: Schema;
   body?: Schema;
-}
-
-interface IRouteOptions {
-  path: string;
-  unless?: boolean;
 }

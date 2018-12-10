@@ -12,7 +12,7 @@ const app = new Koa();
 app.use(bodyParser());
 
 const router = new Router({
-  dir: './controllers',
+  dir: 'test/controllers',
   jwt: {
     secret: 'skmdev',
     getToken: (ctx: Koa.Context) => {
@@ -20,6 +20,11 @@ const router = new Router({
     },
     unless: [/\/graphql$/], // unless grapgql
   },
+});
+
+const routerWithPrefix = new Router({
+  dir: 'test/api',
+  prefix: '/api',
 });
 
 router
@@ -34,6 +39,9 @@ graphqlServer.applyMiddleware({ app });
 
 app.use(router.routes());
 app.use(router.allowedMethods());
+
+app.use(routerWithPrefix.routes());
+app.use(routerWithPrefix.allowedMethods());
 
 app.listen(8000);
 

@@ -53,7 +53,10 @@ class Router extends KoaRouter {
       .sync(path.join(this.dir, './*.ts'))
       .forEach((item: string) => require(item));
 
-    const sortedPriority = [...Router._DecoratedRouters].sort(
+    const cloneMap = new Map(Router._DecoratedRouters);
+    Router._DecoratedRouters = new Map();
+
+    const sortedPriority = [...cloneMap].sort(
       (a, b) => b[0].priority - a[0].priority
     );
 

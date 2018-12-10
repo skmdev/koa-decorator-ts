@@ -26,8 +26,7 @@ class Router extends KoaRouter {
 
   constructor(opt: IRouterConfig) {
     super(opt);
-
-    this.dir = path.join(__dirname, opt.dir);
+    this.dir = path.join(process.cwd(), opt.dir);
     if (opt.jwt) {
       const { unless, ...options } = opt.jwt;
       this.jwtOptions = options;

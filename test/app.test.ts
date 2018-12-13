@@ -181,7 +181,6 @@ it('can Get /unlessPath without token', async () => {
 
 it('can Get /api/product ', async () => {
   const response = await request(server).get('/api/product');
-
   expect(response.status).toBe(200);
   expect(response.body).toEqual([{ sku: 'test' }, { sku: 'test2' }]);
 });

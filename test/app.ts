@@ -12,7 +12,7 @@ const app = new Koa();
 app.use(bodyParser());
 
 const router = new Router({
-  dir: 'test/controllers',
+  dir: `${__dirname}/controllers`,
   jwt: {
     secret: 'skmdev',
     getToken: (ctx: Koa.Context) => {
@@ -23,7 +23,7 @@ const router = new Router({
 });
 
 const routerWithPrefix = new Router({
-  dir: 'test/api',
+  dir: `${__dirname}/api`,
   prefix: '/api',
 });
 

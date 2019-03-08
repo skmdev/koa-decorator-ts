@@ -1,10 +1,6 @@
-tslib
+src
 tsconfig.json
+tslint.json
+yarn.lock
 
-/coverage
-/test
-# ignore the .ts files
-*.ts
-
-# include the .d.ts files
-!*.d.ts
+/test/

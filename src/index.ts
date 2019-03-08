@@ -8,6 +8,7 @@ declare module 'koa' {
       info: any;
       body?: any;
     };
+    meta: any;
   }
 }
 

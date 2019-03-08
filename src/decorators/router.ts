@@ -4,50 +4,48 @@ import { Context } from 'koa';
 import { Validator, Schema } from 'jsonschema';
 
 const v = new Validator();
-const classMethods: IClassMethodMap = {};
+const classMethods: ClassMethodMap = {};
 
 function updateMethodOptions(target: any, name: string, options: any) {
-  if (!Array.isArray(classMethods[target.name])) {
-    classMethods[target.name] = [];
+  const className = target.name || target.constructor.name;
+  if (!Array.isArray(classMethods[className])) {
+    classMethods[className] = [];
   }
-  const method = classMethods[target.name].find(
+
+  const method = classMethods[className].find(
     (methodOptions) => methodOptions.name === name
   );
 
   for (const key in options) {
     if (method && typeof options[key] !== 'undefined') {
-      method[key as keyof IMethodOptions] = options[key];
+      method[key as keyof MethodOptions] = options[key];
     }
   }
 
   if (!method) {
-    classMethods[target.name].push({
+    classMethods[className].push({
       name,
       target,
       controllers: target[name],
+      meta: {},
       ...options,
     });
   }
 }
 
-export const Unless: Function = (
-  target: any,
-  name: string,
-  value: ParameterDecorator
-) => {
-  updateMethodOptions(target, name, { unless: true });
-};
-
 export const Priority = (priority: number): Function => (
   target: any,
-  name: string,
-  value: ParameterDecorator
+  name: string
 ) => {
   updateMethodOptions(target, name, { priority });
 };
 
-const route = (config: IRouterConfig): Function => {
-  return (target: any, name: string, value: ParameterDecorator) => {
+export const Meta = (meta: any): Function => (target: any, name: string) => {
+  updateMethodOptions(target, name, { meta });
+};
+
+const route = (config: RouteConfig): Function => {
+  return (target: any, name: string) => {
     config.path = normalizePath(config.path!);
     updateMethodOptions(target, name, { config });
   };
@@ -65,7 +63,7 @@ export const Route = {
   all: getRoute(MethodType.All),
 };
 
-export const Controller = (path: string) => {
+export const Controller = (path: string = '') => {
   return (target: any) => {
     if (!Array.isArray(classMethods[target.name])) return;
     for (const classMethod of classMethods[target.name]) {
@@ -73,8 +71,8 @@ export const Controller = (path: string) => {
       Router._DecoratedRouters.set(
         {
           target,
-          unless: classMethod.unless || false,
           priority: classMethod.priority || 0,
+          meta: classMethod.meta,
           ...classMethod.config!,
         },
         classMethod.controllers
@@ -87,22 +85,12 @@ export const Middleware = (convert: (...args: any[]) => Promise<any>) => {
   return (...args: any[]) => Decorate(args, convert);
 };
 
-export const Required = (rules: IRequiredConfig) => {
+export const Required = (rules: RequiredConfig) => {
   return (...args: any[]) => {
     return Decorate(args, async (ctx: Context, next: Function) => {
       const method = ctx.method.toLowerCase();
       // Skip checking for graphql
       if (!ctx.graphql) {
-        if (rules.params) {
-          const validateResult = v.validate(ctx.params, rules.params);
-          if (!validateResult.valid) {
-            ctx.throw(
-              412,
-              `${method} Request params: ${validateResult.errors[0].message}`
-            );
-          }
-        }
-
         if (rules.query) {
           const validateResult = v.validate(ctx.query, rules.query);
           if (!validateResult.valid) {
@@ -128,25 +116,25 @@ export const Required = (rules: IRequiredConfig) => {
   };
 };
 
-interface IMethodOptions {
+interface MethodOptions {
   name: string;
   target: any;
   controllers: any;
-  config?: IRouterConfig;
-  unless?: boolean;
+  config?: RouteConfig;
   priority?: number;
+  meta: any;
 }
 
-interface IClassMethodMap {
-  [key: string]: IMethodOptions[];
+interface ClassMethodMap {
+  [key: string]: MethodOptions[];
 }
 
-export interface IRouterConfig {
+export interface RouteConfig {
   method: MethodType;
   path: string;
 }
 
-export interface IRequiredConfig {
+export interface RequiredConfig {
   params?: Schema;
   query?: Schema;
   body?: Schema;

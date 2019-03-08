@@ -5,26 +5,24 @@ import {
   Middleware,
   Required,
   Graphql,
-  Unless,
   Priority,
-} from '../../index';
+  Meta,
+} from '../../src';
+
+async function middlewareLog(ctx: Koa.Context, next: Function) {
+  await next();
+}
 
 // Prefix of api path
 @Controller('/user')
 class UserController {
-  static async middlewareLog(ctx: Koa.Context, next: Function) {
-    console.log('This is middleware');
-    await next();
-  }
-
   @Priority(-1000)
   @Route.all('*')
-  static async handleAll(ctx: Koa.Context, next: any) {
+  async handleAll(ctx: Koa.Context, next: any) {
     ctx.body = 'haha';
   }
 
   // Post /user/login
-  @Unless
   @Route.post('/login')
   @Required({
     // Require { userEmail, password } in the body
@@ -41,25 +39,14 @@ class UserController {
       required: ['userEmail', 'password'],
     },
   })
-  static async login(ctx: Koa.Context) {
+  async login(ctx: Koa.Context) {
     ctx.body = true;
   }
 
   // Get /user/:userId
-  @Route.get('/:userId') // if unless === true, it is equal to koa-jwt unless
-  @Required({
-    params: {
-      type: 'object',
-      properties: {
-        userId: {
-          type: 'string',
-        },
-      },
-      required: ['userId'],
-    },
-  }) // Require for "userId" in the params
-  @Middleware(UserController.middlewareLog) // Add Middleware
-  static async getUserInfo(ctx: Koa.Context) {
+  @Route.get('/:userId')
+  @Middleware(middlewareLog) // Add Middleware
+  async getUserInfo(ctx: Koa.Context) {
     ctx.body = { userName: 'skm', userEmail: 'skmdev@gmail.com' };
   }
 
@@ -75,8 +62,8 @@ class UserController {
       required: ['top', 'star'],
     },
   }) // Require for "top", "star" in the query
-  @Middleware(UserController.middlewareLog)
-  static async getUsers(ctx: Koa.Context) {
+  @Middleware(middlewareLog)
+  async getUsers(ctx: Koa.Context) {
     ctx.body = { userName: 'skm', userEmail: 'skmdev@gmail.com' };
   }
 
@@ -97,46 +84,30 @@ class UserController {
       required: ['userNickName', 'userAddress'],
     },
   })
-  static async updateUserInfo(ctx: Koa.Context) {
+  async updateUserInfo(ctx: Koa.Context) {
     ctx.body = true;
   }
 
   // Put /user/:userId/follow
   @Route.put('/:userId/follow')
-  @Required({
-    params: {
-      type: 'object',
-      properties: {
-        userId: {
-          type: 'string',
-        },
-      },
-      required: ['userId'],
-    },
-  }) // Require for "userId" in the params
-  static async followUser(ctx: Koa.Context) {
+  async followUser(ctx: Koa.Context) {
     ctx.body = true;
   }
 
   // Delete /user/:userId/follow
   @Route.del('/:userId/follow')
-  @Required({
-    params: {
-      type: 'object',
-      properties: {
-        userId: {
-          type: 'string',
-        },
-      },
-      required: ['userId'],
-    },
-  }) // Require for "userId" in the params
-  static async unfollowUser(ctx: Koa.Context) {
+  async unfollowUser(ctx: Koa.Context) {
     ctx.body = true;
   }
 
+  @Meta({ test: 'cc' })
+  @Route.get('/meta')
+  async metaTest(ctx: Koa.Context) {
+    ctx.body = ctx.meta;
+  }
+
   @Graphql
-  @Middleware(UserController.middlewareLog)
+  @Middleware(middlewareLog)
   static async getUser(ctx: Koa.Context) {
     const { args } = ctx.graphql!;
 
@@ -149,7 +120,7 @@ class UserController {
   }
 
   @Graphql // transfrom to graphql resolver
-  @Middleware(UserController.middlewareLog)
+  @Middleware(middlewareLog)
   static async getUsersGraph(ctx: Koa.Context) {
     /**
      * const { root, args, info } = ctx.graphql;

@@ -1,14 +1,16 @@
 # koa-decorator-ts
-Koa Decorator(Type Script Support)
+Koa Decorator (with TypeScript)
 
 # Installation
 ```
 npm i koa-decorator-ts --save
+/* or */
+yarn add koa-decorator-ts
 ```
 
 # Introduction
 This package is a decorator for koa, including the koa-router, graohql.
-You can use decorators to define the path for routing or create a graphql resolver like koa controller method
+You can use decorators to define the path of routing or create a graphql resolver using existing koa controller
 
 # Usage
 
@@ -21,22 +23,12 @@ import Router from 'koa-decorator-ts/router';
 const app = new Koa();
 // 2. Create router
 const router = new Router({
-    app,
-    apiDirPath: `${__dirname}/controllers` // The controllers directory
-    jwt: { // [Optional] koa-jwt options
-      secret: 'skmdev29',
-      unless: [/\/graphql$/] // unless grapgql
-    }
+  dir: `${__dirname}/controllers` // The controllers directory
 });
-
-// [Optional] Jwt unless add .unless() after route function
-router.get('/unlessPath', () => {}).unless();
 
 // [Optional] Graphql inital
 const graphqlServer = new ApolloServer({ schema });
 graphqlServer.applyMiddleware({ app });
-
-
 
 // 3. Register the routers
 app.use(router.routes());
@@ -51,45 +43,71 @@ app.listen(8080);
 
 ```javascript
 import Koa from 'koa';
-import { Controller, Route, Middleware, Required, Graphql, Unless } from '../../index';
+import {
+  Controller,
+  Route,
+  Middleware,
+  Required,
+  Graphql,
+  Priority,
+  Meta,
+} from 'koa-decorator-ts';
+
+async function middlewareLog(ctx: Koa.Context, next: Function) {
+  await next();
+}
 
 // Prefix of api path
 @Controller('/user')
 class UserController {
-  static async middlewareLog(ctx: Koa.Context, next: Function) {
-    console.log('This is middleware');
-    await next();
+  @Priority(-1000)
+  @Route.all('*')
+  async handleAll(ctx: Koa.Context, next: any) {
+    ctx.body = 'haha';
   }
 
   // Post /user/login
-  @Unless// it is equal to koa-jwt unless
   @Route.post('/login')
   @Required({
     // Require { userEmail, password } in the body
     body: {
-      userEmail: 'string',
-      password: 'string',
+      type: 'object',
+      properties: {
+        userEmail: {
+          type: 'string',
+        },
+        password: {
+          type: 'string',
+        },
+      },
+      required: ['userEmail', 'password'],
     },
   })
-  static async login(ctx: Koa.Context): Promise<void> {
+  async login(ctx: Koa.Context) {
     ctx.body = true;
   }
 
   // Get /user/:userId
-
-  @Unless// it is equal to koa-jwt unless
-  @Route.get('/:userId') 
-  @Required({ params: 'userId' }) // Require for "userId" in the params
-  @Middleware(UserController.middlewareLog) // Add Middleware
-  static async getUserInfo(ctx: Koa.Context): Promise<void> {
+  @Route.get('/:userId')
+  @Middleware(middlewareLog) // Add Middleware
+  async getUserInfo(ctx: Koa.Context) {
     ctx.body = { userName: 'skm', userEmail: 'skmdev@gmail.com' };
   }
 
   // Get /user?top=10&star=1000000
   @Route.get('/')
-  @Required({ query: [ 'top', 'star' ] }) // Require for "top", "star" in the query
-  @Middleware(UserController.middlewareLog)
-  static async getUsers(ctx: Koa.Context): Promise<void> {
+  @Required({
+    query: {
+      type: 'object',
+      properties: {
+        top: { type: 'string' },
+        star: { type: 'string' },
+      },
+      required: ['top', 'star'],
+    },
+  }) // Require for "top", "star" in the query
+  @Middleware(middlewareLog)
+  async getUsers(ctx: Koa.Context) {
     ctx.body = { userName: 'skm', userEmail: 'skmdev@gmail.com' };
   }
 
@@ -98,30 +116,55 @@ class UserController {
   @Required({
     // Require { userNickName, userAddress } in the body
     body: {
-      userNickName: 'string',
-      userAddress: 'string',
+      type: 'object',
+      properties: {
+        userNickName: {
+          type: 'string',
+        },
+        userAddress: {
+          type: 'string',
+        },
+      },
+      required: ['userNickName', 'userAddress'],
     },
   })
-  static async updateUserInfo(ctx: Koa.Context): Promise<void> {
+  async updateUserInfo(ctx: Koa.Context) {
     ctx.body = true;
   }
 
   // Put /user/:userId/follow
   @Route.put('/:userId/follow')
-  @Required({ params: [ 'userId' ] }) // Require for "userId" in the params
-  static async followUser(ctx: Koa.Context): Promise<void> {
+  async followUser(ctx: Koa.Context) {
     ctx.body = true;
   }
 
   // Delete /user/:userId/follow
   @Route.del('/:userId/follow')
-  @Required({ params: [ 'userId' ] }) // Require for "userId" in the params
-  static async unfollowUser(ctx: Koa.Context): Promise<void> {
+  async unfollowUser(ctx: Koa.Context) {
     ctx.body = true;
   }
 
+  @Meta({ test: 'cc' })
+  @Route.get('/meta')
+  async metaTest(ctx: Koa.Context) {
+    ctx.body = ctx.meta;
+  }
+
+  @Graphql
+  @Middleware(middlewareLog)
+  static async getUser(ctx: Koa.Context) {
+    const { args } = ctx.graphql!;
+
+    const users = [
+      { username: 'skmdev', role: 'admin', userEmail: 'skmdev29@gmail.com' },
+      { username: 'foo', role: 'user', userEmail: 'bar' },
+    ];
+
+    ctx.body = users.find((user) => user.username === args.username);
+  }
+
   @Graphql // transfrom to graphql resolver
-  @Middleware(UserController.middlewareLog)
+  @Middleware(middlewareLog)
   static async getUsersGraph(ctx: Koa.Context) {
     /**
      * const { root, args, info } = ctx.graphql;
@@ -133,7 +176,7 @@ class UserController {
      * info is representing the graphql info
      * 
      */
-    const { args } = ctx.graphql!; // add ! to ensure it is graphql resolver
+    const { args } = ctx.graphql!;
 
     const users = [
       { username: 'skmdev', role: 'admin', userEmail: 'skmdev29@gmail.com' },
@@ -148,11 +191,5 @@ class UserController {
 export default UserController;
 
 
+
 ```
-
-
-# Todo
-
-Jwt (Done)
-Graphql (Done)
-Test case (90%)

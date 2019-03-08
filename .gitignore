@@ -2,9 +2,4 @@
 /lib
 /coverage
 
-# ignore the .js files
-*.js
-# ignore the .js files
-*.d.ts
-
 !types/*.d.ts

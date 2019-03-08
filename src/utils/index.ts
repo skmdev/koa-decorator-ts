@@ -1,4 +1,4 @@
-export const isArray = (arr: any) => {
+export const toArray = (arr: any) => {
   return Array.isArray(arr) ? arr : [arr];
 };
 
@@ -19,7 +19,7 @@ export const Decorate = (
   middleware: (...args: any[]) => Promise<any>
 ): TypedPropertyDescriptor<(...args: any[]) => Promise<any>> => {
   const [target, name, descriptor] = args;
-  target[name] = isArray(target[name]);
+  target[name] = toArray(target[name]);
   target[name].unshift(middleware);
   return descriptor;
 };

@@ -1,4 +1,4 @@
-import { Controller, Route } from '../../index';
+import { Controller, Route } from '../../src';
 import { Context } from 'vm';
 
 @Controller('/product')

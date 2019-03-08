@@ -1,4 +1,4 @@
-import { normalizePath } from '../utils';
+import { normalizePath } from '../index';
 
 it('can normalize path', () => {
   const path = normalizePath('user');

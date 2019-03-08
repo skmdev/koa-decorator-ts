@@ -1,10 +1,10 @@
 import { Context } from 'koa';
 import compose from 'koa-compose';
 
-import { isArray } from '../utils';
+import { toArray } from '../utils';
 
 export const Graphql = (target: any, name: string, descriptor: any): any => {
-  const middleware = isArray(target[name]);
+  const middleware = toArray(target[name]);
   descriptor.value = async (
     root: any,
     args: any,
@@ -15,7 +15,7 @@ export const Graphql = (target: any, name: string, descriptor: any): any => {
       root,
       args,
       info,
-      body: context.graphql ? context.graphql.body : {}
+      body: context.graphql ? context.graphql.body : {},
     };
 
     if (Object.keys(context.graphql.body).length === 0) {
@@ -25,7 +25,7 @@ export const Graphql = (target: any, name: string, descriptor: any): any => {
         },
         set: function(v) {
           this.graphql.body[this.graphql.info.path.key] = v;
-        }
+        },
       });
     }
 

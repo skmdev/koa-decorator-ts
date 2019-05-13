@@ -176,4 +176,10 @@ describe('/api', () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ foo: 'bar' });
   });
+
+  it("can return in root path", async () => {
+    const response = await request(server).get('/api');
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ foo: 'bar' });
+  });
 });

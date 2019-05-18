@@ -47,7 +47,7 @@ class Router extends KoaRouter {
 
       prefixPath = normalizePath(prefixPath);
 
-      const routerPath = `${prefixPath}${config.path}` || "/"
+      const routerPath = `${prefixPath}${config.path}` || '/'
 
       this[config.method](routerPath, setMeta(config.meta), ...controllers);
     }

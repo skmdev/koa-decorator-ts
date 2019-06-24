@@ -90,7 +90,7 @@ const validateAndThrow = (type: "query" | "body", ctx: Context, data: any, schem
   if (!validateResult.valid) {
     ctx.throw(
       412,
-      `${type} validation error: ${validateResult.errors.map(e => e.message).join()}`,
+      `${type} validation error: ${validateResult.errors.map(e => `${e.property} ${e.message}`).join(", ")}`,
       validateResult.errors
     );
   }

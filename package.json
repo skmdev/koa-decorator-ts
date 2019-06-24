@@ -66,15 +66,15 @@
   },
   "license": "ISC",
   "main": "./lib",
-  "name": "koa-decorator-ts",
+  "name": "@richarddavison/koa-decorator-ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/skmdev/koa-decorator-ts.git"
+    "url": "git+https://github.com/richarddd/koa-decorator-ts.git"
   },
   "scripts": {
     "build": "tsc",
     "prepublishOnly": "tsc",
     "test": "cross-env NODE_ENV=test jest  --no-cache --detectOpenHandles --runInBand"
   },
-  "version": "2.6.0"
+  "version": "2.7.0"
 }

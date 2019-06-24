@@ -76,5 +76,5 @@
     "prepublishOnly": "tsc",
     "test": "cross-env NODE_ENV=test jest  --no-cache --detectOpenHandles --runInBand"
   },
-  "version": "2.7.1"
+  "version": "2.7.2"
 }

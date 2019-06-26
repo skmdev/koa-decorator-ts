@@ -85,6 +85,17 @@ export const Middleware = (convert: (...args: any[]) => Promise<any>) => {
   return (...args: any[]) => Decorate(args, convert);
 };
 
+const validateAndThrow = (type: "query" | "body", ctx: Context, data: any, schema: Schema) => {
+  const validateResult = v.validate(data, schema);
+  if (!validateResult.valid) {
+    ctx.throw(
+      412,
+      `${type} validation error: ${validateResult.errors.map(e => e.message).join()}`,
+      validateResult.errors
+    );
+  }
+}
+
 export const Required = (rules: RequiredConfig) => {
   return (...args: any[]) => {
     return Decorate(args, async (ctx: Context, next: Function) => {
@@ -92,23 +103,11 @@ export const Required = (rules: RequiredConfig) => {
       // Skip checking for graphql
       if (!ctx.graphql) {
         if (rules.query) {
-          const validateResult = v.validate(ctx.query, rules.query);
-          if (!validateResult.valid) {
-            ctx.throw(
-              412,
-              `${method} Request query: ${validateResult.errors[0].message}`
-            );
-          }
+          validateAndThrow("query", ctx, ctx.query, rules.query)
         }
 
         if (rules.body) {
-          const validateResult = v.validate(ctx.request.body, rules.body);
-          if (!validateResult.valid) {
-            ctx.throw(
-              412,
-              `${method} Request body: ${validateResult.errors[0].message}`
-            );
-          }
+          validateAndThrow("query", ctx, ctx.request.body, rules.body)
         }
       }
       await next();

@@ -51,7 +51,7 @@ const route = (config: RouteConfig): Function => {
   };
 };
 
-const getRoute = (method: MethodType) => (path: string) =>
+const getRoute = (method: MethodType) => (path: string = '/') =>
   route({ method, path });
 
 export const Route = {

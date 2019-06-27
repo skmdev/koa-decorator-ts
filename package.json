@@ -66,15 +66,19 @@
   },
   "license": "ISC",
   "main": "./lib",
-  "name": "@richarddavison/koa-decorator-ts",
+  "name": "koa-decorator-ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/richarddd/koa-decorator-ts.git"
+    "url": "git+https://github.com/skmdev/koa-decorator-ts.git"
   },
   "scripts": {
     "build": "tsc",
     "prepublishOnly": "tsc",
     "test": "cross-env NODE_ENV=test jest  --no-cache --detectOpenHandles --runInBand"
   },
+<<<<<<< HEAD
   "version": "2.7.2"
+=======
+  "version": "2.6.0"
+>>>>>>> parent of d7270f5... Update package json
 }

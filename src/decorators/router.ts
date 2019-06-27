@@ -51,7 +51,7 @@ const route = (config: RouteConfig): Function => {
   };
 };
 
-const getRoute = (method: MethodType) => (path: string) =>
+const getRoute = (method: MethodType) => (path: string = '/') =>
   route({ method, path });
 
 export const Route = {
@@ -88,9 +88,10 @@ export const Middleware = (convert: (...args: any[]) => Promise<any>) => {
 const validateAndThrow = (type: "query" | "body", ctx: Context, data: any, schema: Schema) => {
   const validateResult = v.validate(data, schema);
   if (!validateResult.valid) {
+    validateResult.instance
     ctx.throw(
       412,
-      `${type} validation error: ${validateResult.errors.map(e => e.message).join()}`,
+      `${type} validation error: ${validateResult.errors.map(e => `${e.property.replace("instance.", "")} ${e.message.replace("instance ", type)}`).join(", ")}`,
       validateResult.errors
     );
   }
@@ -107,7 +108,7 @@ export const Required = (rules: RequiredConfig) => {
         }
 
         if (rules.body) {
-          validateAndThrow("query", ctx, ctx.request.body, rules.body)
+          validateAndThrow("body", ctx, ctx.request.body, rules.body)
         }
       }
       await next();

@@ -12,6 +12,8 @@ export declare const Route: {
 };
 export declare const Controller: (path?: string) => (target: any) => void;
 export declare const Middleware: (convert: (...args: any[]) => Promise<any>) => (...args: any[]) => TypedPropertyDescriptor<(...args: any[]) => Promise<any>>;
+export declare const RequiredBody: (Type: new () => any) => (...args: any[]) => TypedPropertyDescriptor<(...args: any[]) => Promise<any>>;
+export declare const RequiredQuery: (Type: new () => any) => (...args: any[]) => TypedPropertyDescriptor<(...args: any[]) => Promise<any>>;
 export declare const Required: (rules: RequiredConfig) => (...args: any[]) => TypedPropertyDescriptor<(...args: any[]) => Promise<any>>;
 export interface RouteConfig {
     method: MethodType;

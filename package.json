@@ -81,7 +81,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-push": "yarn build"
+      "pre-push": "yarn build && if [[ $(git diff | head -c1 | wc -c) -ne 0 ]]; then echo \"Git diff was not empty, please commit build dir\";return 1; fi"
     }
   },
   "scripts": {

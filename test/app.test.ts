@@ -28,6 +28,7 @@ describe('/user', () => {
     const response = await request(server).get('/user').query({ star: 2 });
 
     expect(response.status).toBe(412);
+    expect(response.error.text).toBe(`query validation error: query requires property "top"`)
   });
 
   it('can Get /user/:userId', async () => {
@@ -61,6 +62,7 @@ describe('/user', () => {
       .post('/user/login')
       .send({ password: 'haha' });
 
+    expect(response.error.text).toBe(`body validation error: body requires property "userEmail"`)
     expect(response.status).toBe(412);
   });
 

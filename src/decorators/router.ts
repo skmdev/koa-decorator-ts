@@ -86,12 +86,13 @@ export const Middleware = (convert: (...args: any[]) => Promise<any>) => {
 };
 
 const validateAndThrow = (type: 'query' | 'body', ctx: Context, data: any, schema: Schema) => {
-  const validateResult = v.validate(data, schema);
+  const validateResult = v.validate(data, schema, { propertyName: type });
   if (!validateResult.valid) {
-    validateResult.instance
     ctx.throw(
       412,
-      `${type} validation error: ${validateResult.errors.map(e => `${e.property.replace('instance.', '')} ${e.message.replace('instance ', type)}`).join(', ')}`,
+      `${type} validation error: ${validateResult.errors
+        .map(e => `${e.property.replace(`${type}.`, "")} ${e.message}`)
+        .join(", ")}`,
       validateResult.errors
     );
   }
@@ -100,7 +101,6 @@ const validateAndThrow = (type: 'query' | 'body', ctx: Context, data: any, schem
 export const Required = (rules: RequiredConfig) => {
   return (...args: any[]) => {
     return Decorate(args, async (ctx: Context, next: Function) => {
-      const method = ctx.method.toLowerCase();
       // Skip checking for graphql
       if (!ctx.graphql) {
         if (rules.query) {

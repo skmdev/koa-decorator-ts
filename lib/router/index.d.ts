@@ -1,3 +1,5 @@
+/// <reference path="../index.d.ts" />
+/// <reference types="koa-compose" />
 import { Middleware } from 'koa';
 import KoaRouter from 'koa-router';
 export declare const SymbolRoutePrefix: unique symbol;
@@ -5,7 +7,7 @@ declare class Router extends KoaRouter {
     private dir;
     static _DecoratedRouters: Map<DecoratedRoutersMapKey, Middleware[]>;
     constructor(opt: RouterConfig);
-    routes(): any;
+    routes(): import("koa-compose").Middleware<import("koa").ParameterizedContext<any, KoaRouter.IRouterParamContext<any, {}>>>;
 }
 interface DecoratedRoutersMapKey {
     target: any;

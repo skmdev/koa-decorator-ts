@@ -116,7 +116,7 @@ class UserController {
       { username: 'foo', role: 'user', userEmail: 'bar' },
     ];
 
-    ctx.body = users.find((user) => user.username === args.username);
+    ctx.body = users.find(user => user.username === args.username);
   }
 
   @Graphql // transfrom to graphql resolver
@@ -124,13 +124,13 @@ class UserController {
   static async getUsersGraph(ctx: Koa.Context) {
     /**
      * const { root, args, info } = ctx.graphql;
-     * 
+     *
      * root is representing rootObject
-     * 
+     *
      * args is representing the arguments of request
-     * 
+     *
      * info is representing the graphql info
-     * 
+     *
      */
     const { args } = ctx.graphql!;
 
@@ -140,7 +140,7 @@ class UserController {
     ];
 
     // ctx.body is response data;
-    ctx.body = users.filter((user) => user.role === args.role);
+    ctx.body = users.filter(user => user.role === args.role);
   }
 }
 

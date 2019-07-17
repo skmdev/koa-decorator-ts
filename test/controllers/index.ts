@@ -7,10 +7,25 @@ import {
   Graphql,
   Priority,
   Meta,
+  RequiredBody,
+  RequiredQuery,
 } from '../../src';
+import { IsString } from 'class-validator';
 
 async function middlewareLog(ctx: Koa.Context, next: Function) {
   await next();
+}
+
+class LoginRequest {
+  @IsString()
+  userEmail!: string;
+  @IsString()
+  password!: string;
+}
+
+class FilterRequest {
+  @IsString()
+  id!: string;
 }
 
 // Prefix of api path
@@ -43,6 +58,13 @@ class UserController {
     ctx.body = true;
   }
 
+  // Post /user/login
+  @Route.post('/login2')
+  @RequiredBody(LoginRequest)
+  async login2(ctx: Koa.Context) {
+    ctx.body = true;
+  }
+
   // Get /user/:userId
   @Route.get('/:userId')
   @Middleware(middlewareLog) // Add Middleware
@@ -64,6 +86,13 @@ class UserController {
   }) // Require for "top", "star" in the query
   @Middleware(middlewareLog)
   async getUsers(ctx: Koa.Context) {
+    ctx.body = { userName: 'skm', userEmail: 'skmdev@gmail.com' };
+  }
+
+  // Get /user/filter?id=skm
+  @Route.get('/filter')
+  @RequiredQuery(FilterRequest)
+  async getUserByName(ctx: Koa.Context) {
     ctx.body = { userName: 'skm', userEmail: 'skmdev@gmail.com' };
   }
 

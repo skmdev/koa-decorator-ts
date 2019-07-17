@@ -2,6 +2,8 @@ import Router, { SymbolRoutePrefix, MethodType } from '../router';
 import { normalizePath, Decorate } from '../utils';
 import { Context } from 'koa';
 import { Validator, Schema } from 'jsonschema';
+import { getFromContainer, MetadataStorage } from 'class-validator';
+import { validationMetadatasToSchemas } from 'class-validator-jsonschema';
 
 const v = new Validator();
 const classMethods: ClassMethodMap = {};
@@ -102,7 +104,7 @@ const validateAndThrow = (
   }
 };
 
-export const Required = (rules: RequiredConfig) => (...args: any[]) =>
+const RequiredDecorator = (rules: RequiredConfig) => (...args: any[]) =>
   Decorate(args, async (ctx: Context, next: Function) => {
     // Skip checking for graphql
     if (!ctx.graphql) {
@@ -115,6 +117,29 @@ export const Required = (rules: RequiredConfig) => (...args: any[]) =>
     }
     await next();
   });
+
+const GetSchemaFromType = (Type: new () => any) => {
+  const metadatas = (getFromContainer(MetadataStorage) as any)
+    .validationMetadatas;
+  const allSchemas = validationMetadatasToSchemas(metadatas);
+  const schema = allSchemas[Type.name];
+  if (!schema) {
+    console.error(`No schema found for ${Type.name}`);
+  }
+  return schema;
+};
+
+export const RequiredBody = (Type: new () => any) =>
+  RequiredDecorator({
+    body: GetSchemaFromType(Type),
+  });
+
+export const RequiredQuery = (Type: new () => any) =>
+  RequiredDecorator({
+    query: GetSchemaFromType(Type),
+  });
+
+export const Required = (rules: RequiredConfig) => RequiredDecorator(rules);
 
 interface MethodOptions {
   name: string;

@@ -29,11 +29,17 @@
     "@types/koa-bodyparser": "^4.3.0",
     "@types/node": "^12.0.10",
     "@types/supertest": "^2.0.7",
+    "@typescript-eslint/eslint-plugin": "^1.12.0",
+    "@typescript-eslint/parser": "^1.12.0",
     "apollo-server-koa": "^2.6.7",
     "cross-env": "^5.2.0",
+    "eslint": "^6.0.1",
+    "eslint-config-prettier": "^6.0.0",
+    "eslint-plugin-prettier": "^3.1.0",
     "graphql": "^14.4.0",
     "graphql-import": "^0.7.1",
     "graphql-tools": "^4.0.5",
+    "husky": "^3.0.0",
     "jest": "^24.8.0",
     "koa": "^2.7.0",
     "koa-bodyparser": "^4.2.1",
@@ -73,9 +79,16 @@
     "type": "git",
     "url": "git+https://github.com/skmdev/koa-decorator-ts.git"
   },
+  "husky": {
+    "hooks": {
+      "pre-push": "yarn build && if [[ $(git diff | head -c1 | wc -c) -ne 0 ]]; then echo \"Git diff was not empty, please commit build dir\";return 1; fi && echo \"Build dir commited\""
+    }
+  },
   "scripts": {
+    "prebuild": "yarn prettier && yarn lint && yarn test",
     "build": "tsc",
-    "prepublishOnly": "prettier && tsc",
+    "lint": "eslint {src,test}/**/*.ts",
+    "prepublishOnly": "yarn build",
     "prettier": "prettier --write \"{src,test}/**/*.ts{,x}\"",
     "test": "cross-env NODE_ENV=test jest  --no-cache --detectOpenHandles --runInBand"
   },

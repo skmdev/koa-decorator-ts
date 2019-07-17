@@ -33,7 +33,7 @@ class FilterRequest {
 class UserController {
   @Priority(-1000)
   @Route.all('*')
-  async handleAll(ctx: Koa.Context, next: any) {
+  async handleAll(ctx: Koa.Context) {
     ctx.body = 'haha';
   }
 

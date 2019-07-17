@@ -18,6 +18,8 @@ export const Graphql = (target: any, name: string, descriptor: any): any => {
       body: context.graphql ? context.graphql.body : {},
     };
 
+    const key = context.graphql.info.path.key;
+
     if (Object.keys(context.graphql.body).length === 0) {
       Object.defineProperty(context, 'body', {
         get: function() {
@@ -28,8 +30,6 @@ export const Graphql = (target: any, name: string, descriptor: any): any => {
         },
       });
     }
-
-    const key = context.graphql.info.path.key;
 
     await compose<Context>(middleware)(context);
 

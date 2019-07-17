@@ -35,6 +35,23 @@ describe('/user', () => {
     );
   });
 
+  it('can Get /user/filter', async () => {
+    const response = await request(server)
+      .get('/user/filter')
+      .query({ id: 'skm' });
+
+    expect(response.status).toBe(200);
+  });
+
+  it('cannot Get /user/filter without id', async () => {
+    const response = await request(server).get('/user/filter');
+
+    expect(response.status).toBe(412);
+    expect(response.error.text).toBe(
+      `query validation error: query requires property "id"`
+    );
+  });
+
   it('can Get /user/:userId', async () => {
     const response = await request(server).get('/user/1');
 
@@ -61,9 +78,28 @@ describe('/user', () => {
     expect(response.status).toBe(200);
   });
 
-  it('can Post /user/login with body - incorrect', async () => {
+  it('can Post /user/login2 with body', async () => {
+    const response = await request(server)
+      .post('/user/login2')
+      .send({ userEmail: 'skmdev29@gmail.com', password: 'haha' });
+
+    expect(response.status).toBe(200);
+  });
+
+  it('cannot Post /user/login without body.userEmail', async () => {
     const response = await request(server)
       .post('/user/login')
+      .send({ password: 'haha' });
+
+    expect(response.error.text).toBe(
+      `body validation error: body requires property "userEmail"`
+    );
+    expect(response.status).toBe(412);
+  });
+
+  it('cannot Post /user/login2 without body.userEmail', async () => {
+    const response = await request(server)
+      .post('/user/login2')
       .send({ password: 'haha' });
 
     expect(response.error.text).toBe(

@@ -4,17 +4,19 @@ import { Context } from 'koa';
 import { Validator, Schema } from 'jsonschema';
 import { getFromContainer, MetadataStorage } from 'class-validator';
 import { validationMetadatasToSchemas } from 'class-validator-jsonschema';
+import { SchemaObject } from 'openapi3-ts';
 
-const v = new Validator();
-const classMethods: ClassMethodMap = {};
+const VALIDATOR = new Validator();
+const CLASS_METHODS: ClassMethodMap = {};
+const SCHEMA_CACHE: Record<string, SchemaObject> = {};
 
 function updateMethodOptions(target: any, name: string, options: any) {
   const className = target.name || target.constructor.name;
-  if (!Array.isArray(classMethods[className])) {
-    classMethods[className] = [];
+  if (!Array.isArray(CLASS_METHODS[className])) {
+    CLASS_METHODS[className] = [];
   }
 
-  const method = classMethods[className].find(
+  const method = CLASS_METHODS[className].find(
     methodOptions => methodOptions.name === name
   );
 
@@ -25,7 +27,7 @@ function updateMethodOptions(target: any, name: string, options: any) {
   }
 
   if (!method) {
-    classMethods[className].push({
+    CLASS_METHODS[className].push({
       name,
       target,
       controllers: target[name],
@@ -67,8 +69,8 @@ export const Route = {
 };
 
 export const Controller = (path: string = '') => (target: any) => {
-  if (!Array.isArray(classMethods[target.name])) return;
-  for (const classMethod of classMethods[target.name]) {
+  if (!Array.isArray(CLASS_METHODS[target.name])) return;
+  for (const classMethod of CLASS_METHODS[target.name]) {
     target[SymbolRoutePrefix] = path;
     Router._DecoratedRouters.set(
       {
@@ -92,7 +94,9 @@ const validateAndThrow = (
   data: any,
   schema: Schema
 ) => {
-  const validateResult = v.validate(data, schema, { propertyName: type });
+  const validateResult = VALIDATOR.validate(data, schema, {
+    propertyName: type,
+  });
   if (!validateResult.valid) {
     ctx.throw(
       412,
@@ -119,12 +123,19 @@ const RequiredDecorator = (rules: RequiredConfig) => (...args: any[]) =>
   });
 
 const GetSchemaFromType = (Type: new () => any) => {
+  const { name } = Type;
+  const cached = SCHEMA_CACHE[name];
+  if (cached) {
+    return cached;
+  }
   const metadatas = (getFromContainer(MetadataStorage) as any)
     .validationMetadatas;
   const allSchemas = validationMetadatasToSchemas(metadatas);
-  const schema = allSchemas[Type.name];
+  const schema = allSchemas[name];
   if (!schema) {
-    console.error(`No schema found for ${Type.name}`);
+    console.error(`No schema found for ${name}`);
+  } else {
+    SCHEMA_CACHE[name] = schema;
   }
   return schema;
 };

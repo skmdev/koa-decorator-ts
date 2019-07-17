@@ -47,7 +47,7 @@ class Router extends KoaRouter {
 
       prefixPath = normalizePath(prefixPath);
 
-      const routerPath = `${prefixPath}${config.path}` || '/'
+      const routerPath = `${prefixPath}${config.path}` || '/';
 
       this[config.method](routerPath, setMeta(config.meta), ...controllers);
     }
@@ -78,124 +78,5 @@ export enum MethodType {
   Head = 'head',
   Options = 'options',
 }
-
-// interface Router {
-//   /**
-//      * HTTP get method
-//      */
-//   get(
-//     name: string,
-//     path: string | RegExp,
-//     ...middleware: Array<KoaRouter.IMiddleware>
-//   ): Router;
-//   get(
-//     path: string | RegExp,
-//     ...middleware: Array<KoaRouter.IMiddleware>
-//   ): Router;
-
-//   /**
-//      * HTTP post method
-//      */
-//   post(
-//     name: string,
-//     path: string | RegExp,
-//     ...middleware: Array<KoaRouter.IMiddleware>
-//   ): Router;
-//   post(
-//     path: string | RegExp,
-//     ...middleware: Array<KoaRouter.IMiddleware>
-//   ): Router;
-
-//   /**
-//      * HTTP put method
-//      */
-//   put(
-//     name: string,
-//     path: string | RegExp,
-//     ...middleware: Array<KoaRouter.IMiddleware>
-//   ): Router;
-//   put(
-//     path: string | RegExp,
-//     ...middleware: Array<KoaRouter.IMiddleware>
-//   ): Router;
-
-//   /**
-//      * HTTP delete method
-//      */
-//   delete(
-//     name: string,
-//     path: string | RegExp,
-//     ...middleware: Array<KoaRouter.IMiddleware>
-//   ): Router;
-//   delete(
-//     path: string | RegExp,
-//     ...middleware: Array<KoaRouter.IMiddleware>
-//   ): Router;
-
-//   /**
-//      * Alias for `router.delete()` because delete is a reserved word
-//      */
-//   del(
-//     name: string,
-//     path: string | RegExp,
-//     ...middleware: Array<KoaRouter.IMiddleware>
-//   ): Router;
-//   del(
-//     path: string | RegExp,
-//     ...middleware: Array<KoaRouter.IMiddleware>
-//   ): Router;
-
-//   /**
-//      * HTTP head method
-//      */
-//   head(
-//     name: string,
-//     path: string | RegExp,
-//     ...middleware: Array<KoaRouter.IMiddleware>
-//   ): Router;
-//   head(
-//     path: string | RegExp,
-//     ...middleware: Array<KoaRouter.IMiddleware>
-//   ): Router;
-
-//   /**
-//      * HTTP options method
-//      */
-//   options(
-//     name: string,
-//     path: string | RegExp,
-//     ...middleware: Array<KoaRouter.IMiddleware>
-//   ): Router;
-//   options(
-//     path: string | RegExp,
-//     ...middleware: Array<KoaRouter.IMiddleware>
-//   ): Router;
-
-//   /**
-//      * HTTP path method
-//      */
-//   patch(
-//     name: string,
-//     path: string | RegExp,
-//     ...middleware: Array<KoaRouter.IMiddleware>
-//   ): Router;
-//   patch(
-//     path: string | RegExp,
-//     ...middleware: Array<KoaRouter.IMiddleware>
-//   ): Router;
-
-//   /**
-//      * Register route with all methods.
-//      */
-//   all(
-//     name: string,
-//     path: string | RegExp,
-//     ...middleware: Array<KoaRouter.IMiddleware>
-//   ): Router;
-//   all(
-//     path: string | RegExp,
-//     ...middleware: Array<KoaRouter.IMiddleware>
-//   ): Router;
-// }
 
 export default Router;

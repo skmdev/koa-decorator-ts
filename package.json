@@ -36,6 +36,7 @@
     "koa": "^2.7.0",
     "koa-bodyparser": "^4.2.1",
     "koa-graphql": "^0.8.0",
+    "prettier": "^1.18.2",
     "supertest": "^4.0.2",
     "ts-node": "^8.3.0",
     "typescript": "^3.5.2"
@@ -72,7 +73,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "prepublishOnly": "tsc",
+    "prepublishOnly": "prettier && tsc",
+    "prettier": "prettier --write \"{src,test}/**/*.ts{,x}\"",
     "test": "cross-env NODE_ENV=test jest  --no-cache --detectOpenHandles --runInBand"
   },
   "version": "2.6.0"

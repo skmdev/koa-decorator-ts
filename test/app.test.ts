@@ -25,10 +25,14 @@ describe('/user', () => {
   });
 
   it('cannot Get /user without top', async () => {
-    const response = await request(server).get('/user').query({ star: 2 });
+    const response = await request(server)
+      .get('/user')
+      .query({ star: 2 });
 
     expect(response.status).toBe(412);
-    expect(response.error.text).toBe(`query validation error: query requires property "top"`)
+    expect(response.error.text).toBe(
+      `query validation error: query requires property "top"`
+    );
   });
 
   it('can Get /user/:userId', async () => {
@@ -62,7 +66,9 @@ describe('/user', () => {
       .post('/user/login')
       .send({ password: 'haha' });
 
-    expect(response.error.text).toBe(`body validation error: body requires property "userEmail"`)
+    expect(response.error.text).toBe(
+      `body validation error: body requires property "userEmail"`
+    );
     expect(response.status).toBe(412);
   });
 
@@ -83,8 +89,10 @@ describe('/user', () => {
 
 describe('/graphql', () => {
   it('can Query graphql getUsers', async () => {
-    const response = await request(server).post('/graphql').send({
-      query: `
+    const response = await request(server)
+      .post('/graphql')
+      .send({
+        query: `
         {
           getUsers(role: "admin") {
             username
@@ -93,7 +101,7 @@ describe('/graphql', () => {
           }
         }
       `,
-    });
+      });
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({
@@ -110,8 +118,10 @@ describe('/graphql', () => {
   });
 
   it('can Query graphql getUsers and getUser in same request', async () => {
-    const response = await request(server).post('/graphql').send({
-      query: `
+    const response = await request(server)
+      .post('/graphql')
+      .send({
+        query: `
         {
           getUsers(role: "admin") {
             username
@@ -125,7 +135,7 @@ describe('/graphql', () => {
           }
         }
       `,
-    });
+      });
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({
@@ -179,7 +189,7 @@ describe('/api', () => {
     expect(response.body).toEqual({ foo: 'bar' });
   });
 
-  it("can return in root path", async () => {
+  it('can return in root path', async () => {
     const response = await request(server).get('/api');
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ foo: 'bar' });

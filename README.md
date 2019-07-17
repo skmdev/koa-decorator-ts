@@ -1,7 +1,9 @@
 # koa-decorator-ts
+
 Koa Decorator (with TypeScript)
 
 # Installation
+
 ```
 npm i koa-decorator-ts --save
 /* or */
@@ -9,12 +11,14 @@ yarn add koa-decorator-ts
 ```
 
 # Introduction
+
 This package is a decorator for koa, including the koa-router, graohql.
 You can use decorators to define the path of routing or create a graphql resolver using existing koa controller
 
 # Usage
 
 > app.js
+
 ```javascript
 import Koa from 'koa';
 // 1. Import Router
@@ -52,9 +56,18 @@ import {
   Priority,
   Meta,
 } from 'koa-decorator-ts';
+import { IsString } from 'class-validator';
 
 async function middlewareLog(ctx: Koa.Context, next: Function) {
   await next();
+}
+
+//use a class with decorators (class-validator) for validation
+class PatchUserRequest{
+  @IsString()
+  userNickName!:string
+  @IsString()
+  userAddress!:string
 }
 
 // Prefix of api path
@@ -113,21 +126,7 @@ class UserController {
 
   // Patch /user/:userId
   @Route.patch('/:userId')
-  @Required({
-    // Require { userNickName, userAddress } in the body
-    body: {
-      type: 'object',
-      properties: {
-        userNickName: {
-          type: 'string',
-        },
-        userAddress: {
-          type: 'string',
-        },
-      },
-      required: ['userNickName', 'userAddress'],
-    },
-  })
+  @RequiredBody(PatchUserRequest) //do the same for query using @RequiredQuery
   async updateUserInfo(ctx: Koa.Context) {
     ctx.body = true;
   }
@@ -168,13 +167,13 @@ class UserController {
   static async getUsersGraph(ctx: Koa.Context) {
     /**
      * const { root, args, info } = ctx.graphql;
-     * 
+     *
      * root is representing rootObject
-     * 
+     *
      * args is representing the arguments of request
-     * 
+     *
      * info is representing the graphql info
-     * 
+     *
      */
     const { args } = ctx.graphql!;
 

@@ -7,7 +7,6 @@ import { ValidationError as ClassValidationError } from 'class-validator';
 
 const VALIDATOR = new Validator();
 const CLASS_METHODS: ClassMethodMap = {};
-//const SCHEMA_CACHE: Record<string, SchemaObject> = {};
 
 function updateMethodOptions(target: any, name: string, options: any) {
   const className = target.name || target.constructor.name;
@@ -55,7 +54,7 @@ const route = (config: RouteConfig): Function => (
   updateMethodOptions(target, name, { config });
 };
 
-const getRoute = (method: MethodType) => (path: string = '/') =>
+const getRoute = (method: MethodType) => (path = '/') =>
   route({ method, path });
 
 export const Route = {
@@ -67,7 +66,7 @@ export const Route = {
   all: getRoute(MethodType.All),
 };
 
-export const Controller = (path: string = '') => (target: any) => {
+export const Controller = (path = '') => (target: any) => {
   if (!Array.isArray(CLASS_METHODS[target.name])) return;
   for (const classMethod of CLASS_METHODS[target.name]) {
     target[SymbolRoutePrefix] = path;
@@ -81,6 +80,21 @@ export const Controller = (path: string = '') => (target: any) => {
       classMethod.controllers
     );
   }
+};
+
+const throwValidationErrors = (
+  ctx: Context,
+  type: ErrorDataType,
+  errors: Pick<ValidationError, 'property' | 'message'>[]
+) => {
+  console.log(errors);
+  ctx.throw(
+    412,
+    `${type} validation error: ${errors
+      .map(e => `${e.property.replace(`${type}.`, '')} ${e.message}`)
+      .join(', ')}`,
+    errors
+  );
 };
 
 type ErrorDataType = 'query' | 'body';
@@ -101,21 +115,6 @@ const validateAndThrow = (
   if (!validateResult.valid) {
     throwValidationErrors(ctx, type, validateResult.errors);
   }
-};
-
-const throwValidationErrors = (
-  ctx: Context,
-  type: ErrorDataType,
-  errors: Pick<ValidationError, 'property' | 'message'>[]
-) => {
-  console.log(errors);
-  ctx.throw(
-    412,
-    `${type} validation error: ${errors
-      .map(e => `${e.property.replace(`${type}.`, '')} ${e.message}`)
-      .join(', ')}`,
-    errors
-  );
 };
 
 const RequiredDecorator = (rules: RequiredConfig) => (...args: any[]) =>

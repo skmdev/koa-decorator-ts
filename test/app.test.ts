@@ -108,6 +108,28 @@ describe('/user', () => {
     expect(response.status).toBe(412);
   });
 
+  it('cannot Post /user/login2 with empty body', async () => {
+    const response = await request(server)
+      .post('/user/login2')
+      .send();
+
+    expect(response.error.text).toBe(
+      `body validation error: body requires property "userEmail", body requires property "password"`
+    );
+    expect(response.status).toBe(412);
+  });
+
+  it('cannot Post /user/login with empty body', async () => {
+    const response = await request(server)
+      .post('/user/login')
+      .send();
+
+    expect(response.error.text).toBe(
+      `body validation error: body requires property "userEmail", body requires property "password"`
+    );
+    expect(response.status).toBe(412);
+  });
+
   it('can Put /user/:userId/follow ', async () => {
     const response = await request(server).put('/user/haha/follow');
 

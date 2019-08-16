@@ -1,14 +1,13 @@
 import Router, { SymbolRoutePrefix, MethodType } from '../router';
 import { normalizePath, Decorate } from '../utils';
 import { Context } from 'koa';
-import { Validator, Schema } from 'jsonschema';
-import { getFromContainer, MetadataStorage } from 'class-validator';
-import { validationMetadatasToSchemas } from 'class-validator-jsonschema';
-import { SchemaObject } from 'openapi3-ts';
+import { Validator, Schema, ValidationError } from 'jsonschema';
+import { transformAndValidate } from 'class-transformer-validator';
+import { ValidationError as ClassValidationError } from 'class-validator';
 
 const VALIDATOR = new Validator();
 const CLASS_METHODS: ClassMethodMap = {};
-const SCHEMA_CACHE: Record<string, SchemaObject> = {};
+//const SCHEMA_CACHE: Record<string, SchemaObject> = {};
 
 function updateMethodOptions(target: any, name: string, options: any) {
   const className = target.name || target.constructor.name;
@@ -84,12 +83,14 @@ export const Controller = (path: string = '') => (target: any) => {
   }
 };
 
+type ErrorDataType = 'query' | 'body';
+
 export const Middleware = (convert: (...args: any[]) => Promise<any>) => (
   ...args: any[]
 ) => Decorate(args, convert);
 
 const validateAndThrow = (
-  type: 'query' | 'body',
+  type: ErrorDataType,
   ctx: Context,
   data: any,
   schema: Schema
@@ -98,14 +99,23 @@ const validateAndThrow = (
     propertyName: type,
   });
   if (!validateResult.valid) {
-    ctx.throw(
-      412,
-      `${type} validation error: ${validateResult.errors
-        .map(e => `${e.property.replace(`${type}.`, '')} ${e.message}`)
-        .join(', ')}`,
-      validateResult.errors
-    );
+    throwValidationErrors(ctx, type, validateResult.errors);
   }
+};
+
+const throwValidationErrors = (
+  ctx: Context,
+  type: ErrorDataType,
+  errors: Pick<ValidationError, 'property' | 'message'>[]
+) => {
+  console.log(errors);
+  ctx.throw(
+    412,
+    `${type} validation error: ${errors
+      .map(e => `${e.property.replace(`${type}.`, '')} ${e.message}`)
+      .join(', ')}`,
+    errors
+  );
 };
 
 const RequiredDecorator = (rules: RequiredConfig) => (...args: any[]) =>
@@ -122,33 +132,40 @@ const RequiredDecorator = (rules: RequiredConfig) => (...args: any[]) =>
     await next();
   });
 
-const GetSchemaFromType = (Type: new () => any) => {
-  const { name } = Type;
-  const cached = SCHEMA_CACHE[name];
-  if (cached) {
-    return cached;
-  }
-  const metadatas = (getFromContainer(MetadataStorage) as any)
-    .validationMetadatas;
-  const allSchemas = validationMetadatasToSchemas(metadatas);
-  const schema = allSchemas[name];
-  if (!schema) {
-    console.error(`No schema found for ${name}`);
-  } else {
-    SCHEMA_CACHE[name] = schema;
-  }
-  return schema;
-};
+const validateClass = (Type: new () => any, type: ErrorDataType) => (
+  ...args: any[]
+) =>
+  Decorate(args, async (ctx: Context, next: Function) => {
+    const data = (type == 'body' && ctx.request.body) || ctx.query;
+    try {
+      await transformAndValidate(Type, data);
+    } catch (err) {
+      if (Array.isArray(err)) {
+        const errors = err as ClassValidationError[];
+        throwValidationErrors(
+          ctx,
+          type,
+          errors.map(e => {
+            return {
+              property: type,
+              message:
+                (!e.value && `requires property \"${e.property}\"`) ||
+                Object.values(e.constraints)[0],
+            };
+          })
+        );
+      } else {
+        throw err;
+      }
+    }
+    await next();
+  });
 
 export const RequiredBody = (Type: new () => any) =>
-  RequiredDecorator({
-    body: GetSchemaFromType(Type),
-  });
+  validateClass(Type, 'body');
 
 export const RequiredQuery = (Type: new () => any) =>
-  RequiredDecorator({
-    query: GetSchemaFromType(Type),
-  });
+  validateClass(Type, 'query');
 
 export const Required = (rules: RequiredConfig) => RequiredDecorator(rules);
 

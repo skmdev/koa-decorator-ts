@@ -1,5 +1,6 @@
 /// <reference path="../index.d.ts" />
 /// <reference types="koa-compose" />
+/// <reference types="koa-bodyparser" />
 import { Middleware } from 'koa';
 import KoaRouter from 'koa-router';
 export declare const SymbolRoutePrefix: unique symbol;

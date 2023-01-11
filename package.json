@@ -9,7 +9,7 @@
     "babel-jest": "^24.9.0",
     "class-transformer": "^0.2.3",
     "class-transformer-validator": "^0.7.1",
-    "class-validator": "^0.10.0",
+    "class-validator": "^0.14.0",
     "glob": "^7.1.4",
     "jsonschema": "^1.2.4",
     "koa-compose": "^4.1.0",
